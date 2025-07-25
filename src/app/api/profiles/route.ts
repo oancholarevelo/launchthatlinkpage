@@ -10,7 +10,13 @@ export async function POST(request: Request) {
       return new NextResponse('Missing profile key or data', { status: 400 });
     }
 
-    await saveProfile(key, data as Profile);
+    // Ensure the UID from the request is included in the data to be saved
+    const profileData: Profile = {
+      ...data,
+      uid: data.uid, // Explicitly include the uid
+    };
+
+    await saveProfile(key, profileData);
     return NextResponse.json({ message: 'Profile saved successfully', key });
   } catch (error) {
     console.error("Failed to save profile:", error);

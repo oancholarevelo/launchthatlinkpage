@@ -44,9 +44,13 @@ export const getProfile = async (key: string): Promise<Profile | null> => {
     return null;
   }
 };
+// src/lib/profiles.ts
 export const saveProfile = async (key: string, data: Profile): Promise<void> => {
   if (!key || key.trim() === '') {
     throw new Error("Profile key (username) cannot be empty.");
+  }
+  if (!data.uid) {
+    throw new Error("User ID (uid) is required to save a profile.");
   }
   const docRef = doc(db, 'profiles', key);
   await setDoc(docRef, data, { merge: true });
