@@ -3,6 +3,11 @@ import LinkPageTemplate from '@/components/LinkPageTemplate';
 import { notFound } from 'next/navigation';
 import { Profile as ProfileData, blankProfile } from '@/lib/profiles';
 
+// Define a type for the component's props
+type PublicProfilePageProps = {
+  params: { profile: string };
+};
+
 async function fetchProfileData(profileKey: string): Promise<ProfileData | null> {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const apiUrl = `${appUrl}/api/profiles/${profileKey}`;
@@ -28,7 +33,8 @@ const getBackgroundStyle = (background: ProfileData['theme']['background']) => {
   }
 };
 
-export default async function PublicProfilePage({ params }: { params: { profile: string } }) {
+// Use the new type for the component's props
+export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
   if (params.profile === 'edit' || params.profile === 'custom') {
     notFound();
   }
@@ -48,7 +54,6 @@ export default async function PublicProfilePage({ params }: { params: { profile:
     <div className="flex justify-center items-center min-h-screen p-4" style={backgroundStyle}>
         <div className="w-full max-w-[380px] mx-auto rounded-2xl shadow-2xl overflow-hidden aspect-[9/19.5]">
             <div className="overflow-y-auto h-full">
-                {/* UPDATED: Pass the profileKey as a prop */}
                 <LinkPageTemplate 
                   data={{...profileData, theme: safeTheme }} 
                   profileKey={params.profile} 
