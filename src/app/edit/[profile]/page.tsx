@@ -135,7 +135,7 @@ export default function ProfilePage() {
       if (profileKey !== username) {
         router.push(`/edit/${username}`);
       }
-    } catch (error) {
+    } catch {
       alert('Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
