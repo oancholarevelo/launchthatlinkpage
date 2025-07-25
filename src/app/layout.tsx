@@ -11,7 +11,7 @@ import {
   Lora 
 } from "next/font/google";
 import "./globals.css";
-import { Briefcase, FileText, Image as ImageIcon, Link2, LogIn, LogOut, Menu, User, X } from 'lucide-react';
+import { Briefcase, FileText, Link2, LogIn, LogOut, Menu, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { getAuth, signOut } from "firebase/auth";
@@ -125,7 +125,6 @@ function SiteFooter() {
                             <li><a href="https://buildthatthing.vercel.app/" className="text-slate-500 hover:text-indigo-600 transition-colors">Build That Thing</a></li>
                             <li><a href="https://buildthatinvoice.vercel.app/" className="text-slate-500 hover:text-indigo-600 transition-colors">Build That Invoice</a></li>
                             <li><a href="https://buildthatresume.vercel.app/" className="text-slate-500 hover:text-indigo-600 transition-colors">Build That Resume</a></li>
-                            {/* I removed the link to convertthatimage.vercel.app as it wasn't in the original header */}
                             <li><a href="/" className="text-slate-500 hover:text-indigo-600 transition-colors">Launch That Linkpage</a></li>
                         </ul>
                     </div>

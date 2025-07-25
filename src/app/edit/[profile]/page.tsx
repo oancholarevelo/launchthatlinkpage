@@ -110,7 +110,10 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    if (!user) return alert("You must be logged in to save.");
+    if (!user) {
+        alert("You must be logged in to save.");
+        return;
+    }
     if (!username.trim()) {
         alert("Please enter a username.");
         return;
