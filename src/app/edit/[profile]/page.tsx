@@ -109,6 +109,8 @@ export default function ProfilePage() {
     }
   };
 
+  const shareableLink = typeof window !== 'undefined' && username ? `${window.location.origin}/${username}` : '';
+
   const handleSave = async () => {
     if (!user) {
         alert("You must be logged in to save.");
@@ -127,6 +129,9 @@ export default function ProfilePage() {
         body: JSON.stringify({ key: username, data: dataToSave }),
       });
       alert('Profile saved successfully!');
+      if (shareableLink) {
+        window.open(shareableLink, '_blank');
+      }
       if (profileKey !== username) {
         router.push(`/edit/${username}`);
       }
@@ -137,8 +142,6 @@ export default function ProfilePage() {
     }
   };
   
-  const shareableLink = typeof window !== 'undefined' && username ? `${window.location.origin}/${username}` : '';
-
   const handleCopyToClipboard = () => {
     if (!shareableLink) {
         alert("Please enter a username and save before copying the link.");
