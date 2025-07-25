@@ -1,25 +1,12 @@
 // src/app/[profile]/page.tsx
 import LinkPageTemplate from '@/components/LinkPageTemplate';
 import { notFound } from 'next/navigation';
-import { Profile as ProfileData, blankProfile } from '@/lib/profiles';
+import { Profile as ProfileData, blankProfile, getProfile } from '@/lib/profiles';
 
 // Define a type for the component's props
 type PublicProfilePageProps = {
   params: { profile: string };
 };
-
-async function fetchProfileData(profileKey: string): Promise<ProfileData | null> {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const apiUrl = `${appUrl}/api/profiles/${profileKey}`;
-    try {
-        const res = await fetch(apiUrl, { cache: 'no-store' });
-        if (!res.ok) return null;
-        return res.json();
-    } catch (error) {
-        console.error("Failed to fetch profile on server:", error);
-        return null;
-    }
-}
 
 const getBackgroundStyle = (background: ProfileData['theme']['background']) => {
   switch (background.type) {
@@ -39,7 +26,8 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     notFound();
   }
   
-  const profileData = await fetchProfileData(params.profile);
+  // Directly call the function to get data from Firestore
+  const profileData = await getProfile(params.profile);
 
   if (!profileData) {
     notFound();
