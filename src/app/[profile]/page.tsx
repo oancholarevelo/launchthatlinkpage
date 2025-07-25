@@ -3,6 +3,13 @@ import LinkPageTemplate from '@/components/LinkPageTemplate';
 import { notFound } from 'next/navigation';
 import { Profile as ProfileData, blankProfile } from '@/lib/profiles';
 
+// Define a type for the component's props
+type PublicProfilePageProps = {
+  params: {
+    profile: string;
+  };
+};
+
 async function fetchProfileData(profileKey: string): Promise<ProfileData | null> {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const apiUrl = `${appUrl}/api/profiles/${profileKey}`;
@@ -28,7 +35,8 @@ const getBackgroundStyle = (background: ProfileData['theme']['background']) => {
   }
 };
 
-export default async function PublicProfilePage({ params }: { params: { profile: string } }) {
+// Use the defined type for the props
+export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
   if (params.profile === 'edit' || params.profile === 'custom') {
     notFound();
   }
