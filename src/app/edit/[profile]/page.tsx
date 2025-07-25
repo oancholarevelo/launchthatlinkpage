@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, ChangeEvent } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import LinkPageTemplate from '@/components/LinkPageTemplate';
-import { blankProfile, Profile as ProfileData, Link as LinkData } from '@/lib/profiles';
+import { blankProfile, Profile as ProfileData, Link as LinkData, getProfile, saveProfile } from '@/lib/profiles';
 import { ChevronsLeft, Save, Link as LinkIcon, Plus, Trash2, User, Copy, Palette, UploadCloud, Loader2 } from 'lucide-react';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -40,10 +40,11 @@ export default function ProfilePage() {
         setLoading(false);
         return;
       }
+      
+      // Directly fetch the profile from Firestore
+      const data = await getProfile(profileKey);
 
-      const res = await fetch(`/api/profiles/${profileKey}`);
-      if (res.ok) {
-        const data = await res.json();
+      if (data) {
         // SECURITY CHECK: Verify the logged-in user owns this profile
         if (data.uid !== user.uid) {
           alert("Permission Denied: You do not have access to edit this profile.");
@@ -122,12 +123,11 @@ export default function ProfilePage() {
     }
     setIsSaving(true);
     try {
-      const dataToSave = { ...profileData, uid: user.uid }; // Ensure UID is included
-      await fetch('/api/profiles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: username, data: dataToSave }),
-      });
+      const dataToSave = { ...profileData, uid: user.uid }; // Ensure UID is always included
+      
+      // Directly save the profile to Firestore
+      await saveProfile(username, dataToSave);
+      
       alert('Profile saved successfully!');
       if (shareableLink) {
         window.open(shareableLink, '_blank');
@@ -135,7 +135,8 @@ export default function ProfilePage() {
       if (profileKey !== username) {
         router.push(`/edit/${username}`);
       }
-    } catch {
+    } catch (error) {
+      console.error("Failed to save profile:", error);
       alert('Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
