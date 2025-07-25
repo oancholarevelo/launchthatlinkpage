@@ -1,6 +1,6 @@
 // src/lib/profiles.ts
 import { db } from './firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs, limit } from 'firebase/firestore';
 
 export interface Background {
   type: 'solid' | 'gradient' | 'image';
@@ -12,7 +12,7 @@ export interface Background {
 
 export interface Theme {
   background: Background;
-  containerColor: string; // NEW: Add property for the mobile container's color
+  containerColor: string;
   buttonColor: string;
   textColor: string;
   buttonStyle: 'rounded' | 'full' | 'square';
@@ -25,7 +25,7 @@ export interface Link {
 }
 
 export interface Profile {
-  uid: string; // NEW: The Firebase Auth User ID of the owner
+  uid: string;
   name: string;
   bio: string;
   imageUrl: string;
@@ -33,7 +33,6 @@ export interface Profile {
   theme: Theme;
 }
 
-// getProfile and saveProfile functions remain exactly the same
 export const getProfile = async (key: string): Promise<Profile | null> => {
   if (!key) return null;
   const docRef = doc(db, 'profiles', key);
@@ -44,19 +43,30 @@ export const getProfile = async (key: string): Promise<Profile | null> => {
     return null;
   }
 };
-// src/lib/profiles.ts
+
 export const saveProfile = async (key: string, data: Profile): Promise<void> => {
   if (!key || key.trim() === '') {
     throw new Error("Profile key (username) cannot be empty.");
   }
-  if (!data.uid) {
+   if (!data.uid) {
     throw new Error("User ID (uid) is required to save a profile.");
   }
   const docRef = doc(db, 'profiles', key);
   await setDoc(docRef, data, { merge: true });
 };
 
-// UPDATE: Add a default value for the new containerColor
+export const getProfileKeyByUid = async (uid: string): Promise<string | null> => {
+  if (!uid) return null;
+  const profilesRef = collection(db, 'profiles');
+  const q = query(profilesRef, where("uid", "==", uid), limit(1));
+  const querySnapshot = await getDocs(q);
+
+  if (!querySnapshot.empty) {
+    return querySnapshot.docs[0].id;
+  }
+  return null;
+};
+
 export const blankProfile: Profile = {
   uid: '',
   name: '',
@@ -66,12 +76,12 @@ export const blankProfile: Profile = {
   theme: {
     background: {
       type: 'solid',
-      color: '#f1f5f9', // Page Background
+      color: '#f1f5f9',
       gradientStart: '#e0e7ff',
       gradientEnd: '#e0f2fe',
       imageUrl: '',
     },
-    containerColor: '#ffffff', // NEW: Default container color is white
+    containerColor: '#ffffff',
     buttonColor: '#ffffff',
     textColor: '#4f46e5',
     buttonStyle: 'rounded',

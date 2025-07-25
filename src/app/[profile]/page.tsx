@@ -3,7 +3,6 @@ import LinkPageTemplate from '@/components/LinkPageTemplate';
 import { notFound } from 'next/navigation';
 import { Profile as ProfileData, blankProfile, getProfile } from '@/lib/profiles';
 
-// Define a type for the component's props
 type PublicProfilePageProps = {
   params: { profile: string };
 };
@@ -20,13 +19,11 @@ const getBackgroundStyle = (background: ProfileData['theme']['background']) => {
   }
 };
 
-// Use the new type for the component's props
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
   if (params.profile === 'edit' || params.profile === 'custom') {
     notFound();
   }
   
-  // Directly call the function to get data from Firestore
   const profileData = await getProfile(params.profile);
 
   if (!profileData) {
@@ -44,7 +41,6 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             <div className="overflow-y-auto h-full">
                 <LinkPageTemplate 
                   data={{...profileData, theme: safeTheme }} 
-                  profileKey={params.profile} 
                 />
             </div>
         </div>

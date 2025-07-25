@@ -1,4 +1,4 @@
-// src/app/edit/[profile]/page.tsx
+// src/app/(main)/edit/[profile]/page.tsx
 'use client';
 
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
@@ -26,26 +26,23 @@ export default function ProfilePage() {
   
   useEffect(() => {
     if (authLoading) {
-      return; // Wait until Firebase auth state is determined
+      return;
     }
     if (!user) {
-      router.push('/login'); // Redirect to login if not authenticated
+      router.push('/login');
       return;
     }
 
     async function fetchProfile() {
       if (profileKey === 'custom') {
-        // For a new profile, assign the current user's UID
         setProfileData(prev => ({ ...prev, uid: user.uid }));
         setLoading(false);
         return;
       }
       
-      // Directly fetch the profile from Firestore
       const data = await getProfile(profileKey);
 
       if (data) {
-        // SECURITY CHECK: Verify the logged-in user owns this profile
         if (data.uid !== user.uid) {
           alert("Permission Denied: You do not have access to edit this profile.");
           router.push('/');
@@ -55,7 +52,6 @@ export default function ProfilePage() {
         theme.background = { ...blankProfile.theme.background, ...theme.background };
         setProfileData({ ...blankProfile, ...data, theme });
       } else {
-        // If profile doesn't exist, treat it like a new one but keep the attempted username
         setUsername(profileKey);
         setProfileData(prev => ({ ...prev, uid: user.uid }));
       }
@@ -76,7 +72,7 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
         alert(`File is too large. Please select a file smaller than 5MB.`);
         e.target.value = '';
@@ -85,7 +81,6 @@ export default function ProfilePage() {
 
     setIsUploading(prev => ({ ...prev, [type]: true }));
     
-    // Use the user's UID in the path for security
     const filePath = `profiles/${user.uid}/${type === 'profile' ? 'profilePicture' : 'backgroundImage'}_${Date.now()}`;
     const storageRef = ref(storage, filePath);
 
@@ -123,9 +118,8 @@ export default function ProfilePage() {
     }
     setIsSaving(true);
     try {
-      const dataToSave = { ...profileData, uid: user.uid }; // Ensure UID is always included
+      const dataToSave = { ...profileData, uid: user.uid };
       
-      // Directly save the profile to Firestore
       await saveProfile(username, dataToSave);
       
       alert('Profile saved successfully!');
@@ -201,7 +195,7 @@ export default function ProfilePage() {
   };
 
   if (authLoading || loading) return <div className="text-center p-12">Loading...</div>;
-  if (!user) return null; // Render nothing while redirecting
+  if (!user) return null;
 
   return (
     <main className="p-4 sm:p-8 lg:p-12 bg-transparent">
