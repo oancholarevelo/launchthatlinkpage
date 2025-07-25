@@ -11,7 +11,7 @@ import {
   Lora 
 } from "next/font/google";
 import "./globals.css";
-import { Briefcase, FileText, Link2, LogIn, LogOut, Menu, User, X } from 'lucide-react';
+import { LogIn, LogOut, Menu, User, X } from 'lucide-react';
 import { useState } from 'react';
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { getAuth, signOut } from "firebase/auth";
@@ -38,9 +38,9 @@ function SiteHeader() {
   return (
     <header className="w-full bg-white/50 backdrop-blur-lg border-b border-slate-200/80 sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
-        <a href="/" className="text-xl font-bold text-slate-800">
+        <Link href="/" className="text-xl font-bold text-slate-800">
           Build That Thing
-        </a>
+        </Link>
         <nav className="hidden md:flex items-center gap-4 sm:gap-6 text-sm font-medium text-slate-600">
           <a href="https://buildthatinvoice.vercel.app/" className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
             <span className="hidden sm:inline">Invoice Builder</span>
@@ -51,9 +51,9 @@ function SiteHeader() {
           <a href="https://convertthatimage.vercel.app/" className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
             <span className="hidden sm:inline">Image Converter</span>
           </a>
-          <a href="https://launchthatlinkpage.vercel.app/" className="flex items-center gap-2 text-indigo-600 font-semibold">
+          <Link href="/" className="flex items-center gap-2 text-indigo-600 font-semibold">
             <span className="hidden sm:inline">Linkpage Builder</span>
-          </a>
+          </Link>
           {user ? (
             <>
               <Link href="/edit/custom" className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
@@ -83,8 +83,7 @@ function SiteHeader() {
             <a href="https://buildthatinvoice.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Invoice Builder</a>
             <a href="https://buildthatresume.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Resume Builder</a>
             <a href="https://convertthatimage.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Image Converter</a>
-            <a href="https://launchthatlinkpage.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Linkpage Builder</a>
-            <a href="/" className="block py-3 px-4 text-sm font-medium text-indigo-600 bg-slate-50 border-t border-slate-200/80">Linkpage Builder</a>
+            <Link href="/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Linkpage Builder</Link>
             {user ? (
               <>
                 <Link href="/edit/custom" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">My Page</Link>
@@ -99,7 +98,6 @@ function SiteHeader() {
   );
 }
 
-// UPDATED: Replaced with your requested footer component
 function SiteFooter() {
     return (
         <footer className="bg-white/50 border-t border-slate-200/80 mt-12 py-10">
@@ -127,7 +125,7 @@ function SiteFooter() {
                             <li><a href="https://buildthatthing.vercel.app/" className="text-slate-500 hover:text-indigo-600 transition-colors">Build That Thing</a></li>
                             <li><a href="https://buildthatinvoice.vercel.app/" className="text-slate-500 hover:text-indigo-600 transition-colors">Build That Invoice</a></li>
                             <li><a href="https://buildthatresume.vercel.app/" className="text-slate-500 hover:text-indigo-600 transition-colors">Build That Resume</a></li>
-                            <li><a href="/" className="text-slate-500 hover:text-indigo-600 transition-colors">Launch That Linkpage</a></li>
+                            <li><Link href="/" className="text-slate-500 hover:text-indigo-600 transition-colors">Launch That Linkpage</Link></li>
                         </ul>
                     </div>
                 </div>
@@ -135,7 +133,6 @@ function SiteFooter() {
         </footer>
     );
 }
-
 
 export default function RootLayout({
   children,

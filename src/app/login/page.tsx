@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { app } from '@/lib/firebase';
-import { User, Link2 } from 'lucide-react';
+import { Link2 } from 'lucide-react';
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
