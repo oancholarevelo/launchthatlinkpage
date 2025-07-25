@@ -21,8 +21,12 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/'); // Redirect to home after login
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            setError(err.message);
+        } else {
+            setError('An unexpected error occurred.');
+        }
     }
   };
   
@@ -30,8 +34,12 @@ export default function LoginPage() {
     try {
       await signInWithPopup(auth, googleProvider);
       router.push('/');
-    } catch (err: any) { // Corrected line
-      setError(err.message);
+    } catch (err: unknown) {
+        if (err instanceof Error) {
+            setError(err.message);
+        } else {
+            setError('An unexpected error occurred.');
+        }
     }
   };
 
