@@ -43,16 +43,16 @@ function SiteHeader() {
         </a>
         <nav className="hidden md:flex items-center gap-4 sm:gap-6 text-sm font-medium text-slate-600">
           <a href="https://buildthatinvoice.vercel.app/" className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
-            <FileText size={16} />
-            <span className="hidden sm:inline">Build That Invoice</span>
+            <span className="hidden sm:inline">Invoice Builder</span>
           </a>
           <a href="https://buildthatresume.vercel.app/" className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
-            <Briefcase size={16} />
-            <span className="hidden sm:inline">Build That Resume</span>
+            <span className="hidden sm:inline">Resume Builder</span>
           </a>
-           <a href="/" className="flex items-center gap-2 text-indigo-600 font-semibold">
-            <Link2 size={16} />
-            <span className="hidden sm:inline">Launch That Linkpage</span>
+          <a href="https://convertthatimage.vercel.app/" className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
+            <span className="hidden sm:inline">Image Converter</span>
+          </a>
+          <a href="https://launchthatlinkpage.vercel.app/" className="flex items-center gap-2 text-indigo-600 font-semibold">
+            <span className="hidden sm:inline">Linkpage Builder</span>
           </a>
           {user ? (
             <>
@@ -80,9 +80,11 @@ function SiteHeader() {
       </div>
       <div className={`grid md:hidden bg-white/80 backdrop-blur-lg overflow-hidden transition-[grid-template-rows] duration-300 ease-in-out ${isMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
           <div className="min-h-0">
-            <a href="https://buildthatinvoice.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Build That Invoice</a>
-            <a href="https://buildthatresume.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Build That Resume</a>
-            <a href="/" className="block py-3 px-4 text-sm font-medium text-indigo-600 bg-slate-50 border-t border-slate-200/80">Launch That Linkpage</a>
+            <a href="https://buildthatinvoice.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Invoice Builder</a>
+            <a href="https://buildthatresume.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Resume Builder</a>
+            <a href="https://convertthatimage.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Image Converter</a>
+            <a href="https://launchthatlinkpage.vercel.app/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Linkpage Builder</a>
+            <a href="/" className="block py-3 px-4 text-sm font-medium text-indigo-600 bg-slate-50 border-t border-slate-200/80">Linkpage Builder</a>
             {user ? (
               <>
                 <Link href="/edit/custom" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">My Page</Link>
