@@ -3,9 +3,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import { Link2 } from 'lucide-react';
+import Link from 'next/link';
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
@@ -15,15 +16,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-
-  const handleSignUp = async () => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      router.push('/'); // Redirect to home after sign up
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
 
   const handleLogin = async () => {
     try {
@@ -38,7 +30,7 @@ export default function LoginPage() {
     try {
       await signInWithPopup(auth, googleProvider);
       router.push('/');
-    } catch (err: any) {
+    } catch (err: any) { // Corrected line
       setError(err.message);
     }
   };
@@ -50,8 +42,8 @@ export default function LoginPage() {
           <div className="inline-block p-4 bg-indigo-100 rounded-full">
             <Link2 size={48} className="text-indigo-600" />
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 mt-4">Welcome</h1>
-          <p className="text-slate-500">Sign in or create an account to manage your page</p>
+          <h1 className="text-4xl font-bold text-slate-900 mt-4">Welcome Back</h1>
+          <p className="text-slate-500">Sign in to manage your page</p>
         </div>
         
         <div className="bg-white p-8 rounded-xl shadow-lg space-y-4">
@@ -70,9 +62,9 @@ export default function LoginPage() {
             className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg"
           />
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <div className="flex gap-4">
-            <button onClick={handleLogin} className="w-full py-2.5 font-semibold rounded-lg bg-indigo-600 text-white">Login</button>
-            <button onClick={handleSignUp} className="w-full py-2.5 font-semibold rounded-lg bg-slate-200 text-slate-800">Sign Up</button>
+          <button onClick={handleLogin} className="w-full py-2.5 font-semibold rounded-lg bg-indigo-600 text-white">Login</button>
+          <div className="text-center text-sm text-slate-500">
+            Don&apos;t have an account? <Link href="/register" className="font-semibold text-indigo-600 hover:underline">Sign up</Link>
           </div>
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-300"></div></div>

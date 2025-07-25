@@ -98,6 +98,7 @@ function SiteHeader() {
   );
 }
 
+// UPDATED: Replaced with your requested footer component
 function SiteFooter() {
     return (
         <footer className="bg-white/50 border-t border-slate-200/80 mt-12 py-10">
@@ -133,6 +134,7 @@ function SiteFooter() {
         </footer>
     );
 }
+
 
 export default function RootLayout({
   children,

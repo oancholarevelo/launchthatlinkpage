@@ -100,7 +100,7 @@ export default function ProfilePage() {
           theme: { ...prev.theme, background: { ...prev.theme.background, imageUrl: downloadURL } }
         }));
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error uploading file:", error);
       alert("Failed to upload image. Please try again.");
     } finally {
@@ -130,7 +130,7 @@ export default function ProfilePage() {
       if (profileKey !== username) {
         router.push(`/edit/${username}`);
       }
-    } catch (error: any) {
+    } catch (error) {
       alert('Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
@@ -157,6 +157,11 @@ export default function ProfilePage() {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev, theme: { ...prev.theme, [name]: value } }));
   };
+  
+  const handleButtonStyleChange = (style: 'rounded' | 'full' | 'square') => {
+    setProfileData(prev => ({ ...prev, theme: { ...prev.theme, buttonStyle: style } }));
+    };
+
 
   const handleBackgroundChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -299,7 +304,7 @@ export default function ProfilePage() {
                 <label className="block text-sm font-medium text-slate-600 mb-2">Button Style</label>
                 <div className="grid grid-cols-3 gap-2">
                     {(['rounded', 'full', 'square'] as const).map(style => (
-                        <button key={style} onClick={() => handleThemeChange({ target: { name: 'buttonStyle', value: style } } as ChangeEvent<HTMLSelectElement>)} className={`py-2 text-sm font-semibold border-2 rounded-lg transition-colors ${profileData.theme.buttonStyle === style ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300'}`}>
+                        <button key={style} onClick={() => handleButtonStyleChange(style)} className={`py-2 text-sm font-semibold border-2 rounded-lg transition-colors ${profileData.theme.buttonStyle === style ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300'}`}>
                            {style.charAt(0).toUpperCase() + style.slice(1)}
                         </button>
                     ))}
