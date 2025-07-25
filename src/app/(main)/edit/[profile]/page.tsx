@@ -1,4 +1,3 @@
-// src/app/(main)/edit/[profile]/page.tsx
 'use client';
 
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
@@ -118,8 +117,15 @@ export default function ProfilePage() {
     }
     setIsSaving(true);
     try {
+      // NEW: Check if the username is already taken by another user
+      const existingProfile = await getProfile(username);
+      if (existingProfile && existingProfile.uid !== user.uid) {
+        alert("This username is already taken. Please choose another one.");
+        setIsSaving(false);
+        return;
+      }
+
       const dataToSave = { ...profileData, uid: user.uid };
-      
       await saveProfile(username, dataToSave);
       
       alert('Profile saved successfully!');
@@ -158,8 +164,7 @@ export default function ProfilePage() {
   
   const handleButtonStyleChange = (style: 'rounded' | 'full' | 'square') => {
     setProfileData(prev => ({ ...prev, theme: { ...prev.theme, buttonStyle: style } }));
-    };
-
+  };
 
   const handleBackgroundChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -217,15 +222,22 @@ export default function ProfilePage() {
           </div>
           <div className="mt-4 border-t border-slate-200/80 pt-4">
             <label className="block text-sm font-medium text-slate-600 mb-2">Your Unique Username</label>
+            {/* UPDATED: Simplified username input UI */}
             <div className="flex items-center gap-2">
-              <div className="flex items-center w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg">
-                <span className="text-slate-400 text-sm">{typeof window !== 'undefined' ? `${window.location.origin}/` : '.../'}</span>
-                <input type="text" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} placeholder="your-cool-username" className="w-full bg-transparent outline-none text-indigo-600 font-semibold" />
-              </div>
-              <button onClick={handleCopyToClipboard} className="py-2.5 px-4 inline-flex items-center gap-2 text-sm font-semibold rounded-lg bg-slate-600 text-white hover:bg-slate-700 shadow-sm transition-all">
-                <Copy size={16}/>
+              <input 
+                type="text" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} 
+                placeholder="your-cool-username" 
+                className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-indigo-600 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" 
+              />
+              <button onClick={handleCopyToClipboard} className="p-2.5 inline-flex items-center justify-center text-sm font-semibold rounded-lg bg-slate-600 text-white hover:bg-slate-700 shadow-sm transition-all">
+                  <Copy size={16}/>
               </button>
             </div>
+            <p className="text-xs text-slate-500 mt-2">
+              Your public page will be at: <span className="font-medium text-slate-700">{shareableLink || "..."}</span>
+            </p>
           </div>
         </div>
         

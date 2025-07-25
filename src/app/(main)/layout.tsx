@@ -14,14 +14,18 @@ function SiteHeader() {
   const { user } = useAuth();
   const auth = getAuth(app);
   const [userProfileKey, setUserProfileKey] = useState<string | null>(null);
+  const [keyLoading, setKeyLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     if (user) {
+      setKeyLoading(true);
       getProfileKeyByUid(user.uid).then(key => {
         setUserProfileKey(key);
+        setKeyLoading(false); // Finish loading
       });
     } else {
       setUserProfileKey(null);
+      setKeyLoading(false); // Finish loading if no user
     }
   }, [user]);
 
@@ -52,7 +56,13 @@ function SiteHeader() {
           </Link>
           {user ? (
             <>
-              <Link href={myPageHref} className="flex items-center gap-2 hover:text-indigo-600 transition-colors">
+              {/* This link is now disabled while loading the profile key */}
+              <Link 
+                href={myPageHref} 
+                className={`flex items-center gap-2 transition-colors ${keyLoading ? 'text-slate-400 cursor-not-allowed' : 'hover:text-indigo-600'}`}
+                aria-disabled={keyLoading}
+                onClick={(e) => keyLoading && e.preventDefault()}
+              >
                 <User size={16} />
                 <span className="hidden sm:inline">My Page</span>
               </Link>
@@ -82,7 +92,14 @@ function SiteHeader() {
             <Link href="/" className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Linkpage Builder</Link>
             {user ? (
               <>
-                <Link href={myPageHref} className="block py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">My Page</Link>
+                <Link 
+                  href={myPageHref} 
+                  className={`block py-3 px-4 text-sm font-medium text-slate-600 border-t border-slate-200/80 ${keyLoading ? 'cursor-not-allowed bg-slate-50' : 'hover:bg-slate-100'}`}
+                  aria-disabled={keyLoading}
+                  onClick={(e) => keyLoading && e.preventDefault()}
+                >
+                  My Page
+                </Link>
                 <button onClick={handleLogout} className="w-full text-left py-3 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 border-t border-slate-200/80">Logout</button>
               </>
             ) : (
