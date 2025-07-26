@@ -66,11 +66,11 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const backgroundStyle = getBackgroundStyle(safeTheme.background);
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4 sm:p-8" style={backgroundStyle}>
+    <div className="relative flex justify-center items-center min-h-screen p-4 sm:p-8 overflow-hidden" style={backgroundStyle}>
         {safeTheme.overlay.enabled && safeTheme.overlay.imageUrl && (
           <AnimatedBackground imageUrl={safeTheme.overlay.imageUrl} />
         )}
-        <div className="w-full max-w-[380px]">
+        <div className="relative z-10 w-full max-w-[380px]">
              <LinkPageTemplate 
                 data={{...profileData, theme: safeTheme }} 
                 profileKey={params.profile}

@@ -43,24 +43,24 @@ export default function ProfilePage() {
   const params = useParams();
   const router = useRouter();
   const profileKey = params.profile as string;
-  
+
   const [profileData, setProfileData] = useState<ProfileData>(blankProfile);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<{ profile: boolean; background: boolean; overlay: boolean }>({ profile: false, background: false, overlay: false });
   const [isUploadingGif, setIsUploadingGif] = useState<{ [index: number]: boolean }>({});
   const [username, setUsername] = useState(profileKey === 'custom' ? '' : profileKey);
-  
+
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
   const debouncedUsername = useDebounce(username, 500);
-  
+
   const pageRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     if (profileKey === 'custom') {
-        document.title = 'Create New Page | Linkpage Editor';
+      document.title = 'Create New Page | Linkpage Editor';
     } else {
-        document.title = `Editing ${profileKey} | Linkpage Editor`;
+      document.title = `Editing ${profileKey} | Linkpage Editor`;
     }
   }, [profileKey]);
 
@@ -77,7 +77,7 @@ export default function ProfilePage() {
         setLoading(false);
         return;
       }
-      
+
       const data: ProfileWithLegacy | null = await getProfile(profileKey);
 
       if (data) {
@@ -90,7 +90,7 @@ export default function ProfilePage() {
         theme.background = { ...blankProfile.theme.background, ...theme.background };
         theme.overlay = { ...blankProfile.theme.overlay, ...theme.overlay };
         const socials = data.socials || [];
-        const blocks = data.blocks || data.links?.map((l: LegacyLink) => ({...l, type: 'link'})) || [];
+        const blocks = data.blocks || data.links?.map((l: LegacyLink) => ({ ...l, type: 'link' })) || [];
         setProfileData({ ...blankProfile, ...data, theme, socials, blocks });
       } else {
         setUsername(profileKey);
@@ -127,20 +127,20 @@ export default function ProfilePage() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-        alert(`File is too large. Max 5MB.`);
-        e.target.value = '';
-        return;
+      alert(`File is too large. Max 5MB.`);
+      e.target.value = '';
+      return;
     }
 
     setIsUploading(prev => ({ ...prev, [type]: true }));
-    
+
     const filePath = `profiles/${user.uid}/${type}Image_${Date.now()}`;
     const storageRef = ref(storage, filePath);
 
     try {
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
-      
+
       if (type === 'profile') {
         setProfileData(prev => ({ ...prev, imageUrl: downloadURL }));
       } else if (type === 'background') {
@@ -169,9 +169,9 @@ export default function ProfilePage() {
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) { // Increased limit for GIFs
-        alert(`File is too large. Max 10MB.`);
-        e.target.value = '';
-        return;
+      alert(`File is too large. Max 10MB.`);
+      e.target.value = '';
+      return;
     }
 
     setIsUploadingGif(prev => ({ ...prev, [index]: true }));
@@ -196,12 +196,12 @@ export default function ProfilePage() {
 
   const handleSave = async () => {
     if (!user) {
-        alert("You must be logged in to save.");
-        return;
+      alert("You must be logged in to save.");
+      return;
     }
     if (!username.trim() || usernameStatus === 'taken' || usernameStatus === 'invalid') {
-        alert("Please enter a valid and available username.");
-        return;
+      alert("Please enter a valid and available username.");
+      return;
     }
     setIsSaving(true);
     try {
@@ -214,7 +214,7 @@ export default function ProfilePage() {
 
       const dataToSave = { ...profileData, uid: user.uid };
       await saveProfile(username, dataToSave);
-      
+
       alert('Profile saved successfully!');
       if (shareableLink) {
         window.open(shareableLink, '_blank');
@@ -229,17 +229,17 @@ export default function ProfilePage() {
       setIsSaving(false);
     }
   };
-  
+
   const handleCopyToClipboard = () => {
     if (!shareableLink) {
-        alert("Please enter a username and save before copying the link.");
-        return;
+      alert("Please enter a username and save before copying the link.");
+      return;
     };
     navigator.clipboard.writeText(shareableLink).then(() => {
-        alert('Link copied to clipboard!');
+      alert('Link copied to clipboard!');
     });
   };
-  
+
   const handleProfileChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfileData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -259,7 +259,7 @@ export default function ProfilePage() {
       }
     }));
   };
-  
+
   const handleButtonStyleChange = (style: 'rounded' | 'full' | 'square') => {
     setProfileData(prev => ({ ...prev, theme: { ...prev.theme, buttonStyle: style } }));
   };
@@ -297,24 +297,24 @@ export default function ProfilePage() {
 
   const handleSocialLinkChange = (index: number, field: keyof SocialLink, value: string) => {
     setProfileData(prev => {
-        const newSocials = [...(prev.socials || [])];
-        newSocials[index] = { ...newSocials[index], [field]: value as SocialLink['platform'] };
-        return { ...prev, socials: newSocials };
+      const newSocials = [...(prev.socials || [])];
+      newSocials[index] = { ...newSocials[index], [field]: value as SocialLink['platform'] };
+      return { ...prev, socials: newSocials };
     });
   };
 
   const addSocialLink = () => {
-      setProfileData(prev => ({
-          ...prev,
-          socials: [...(prev.socials || []), { platform: 'website', url: '' }]
-      }));
+    setProfileData(prev => ({
+      ...prev,
+      socials: [...(prev.socials || []), { platform: 'website', url: '' }]
+    }));
   };
 
   const removeSocialLink = (index: number) => {
-      setProfileData(prev => ({
-          ...prev,
-          socials: (prev.socials || []).filter((_, i) => i !== index)
-      }));
+    setProfileData(prev => ({
+      ...prev,
+      socials: (prev.socials || []).filter((_, i) => i !== index)
+    }));
   };
 
 
@@ -329,7 +329,7 @@ export default function ProfilePage() {
         return { backgroundColor: background.color };
     }
   };
-  
+
   const renderUsernameStatus = () => {
     switch (usernameStatus) {
       case 'checking':
@@ -362,7 +362,7 @@ export default function ProfilePage() {
                 <ChevronsLeft size={16} /> Back
               </Link>
               <button onClick={handleSave} disabled={isSaving || !username || usernameStatus === 'taken' || usernameStatus === 'invalid'} className="py-2.5 px-6 inline-flex items-center gap-2 text-sm font-semibold rounded-lg border-transparent bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg disabled:bg-indigo-300 disabled:cursor-not-allowed">
-                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16}/>}
+                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                 {isSaving ? 'Saving...' : 'Save Page'}
               </button>
             </div>
@@ -370,42 +370,42 @@ export default function ProfilePage() {
           <div className="mt-4 border-t border-slate-200/80 pt-4">
             <label className="block text-sm font-medium text-slate-600 mb-2">Your Unique Username</label>
             <div className="flex items-center gap-2">
-              <input 
-                type="text" 
-                value={username} 
-                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} 
-                placeholder="your-cool-username" 
-                className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-indigo-600 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none" 
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                placeholder="your-cool-username"
+                className="w-full px-4 py-2 bg-slate-100 border border-slate-200 rounded-lg text-indigo-600 font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
               />
               <button onClick={handleCopyToClipboard} className="p-2.5 inline-flex items-center justify-center text-sm font-semibold rounded-lg bg-slate-600 text-white hover:bg-slate-700 shadow-sm transition-all">
-                  <Copy size={16}/>
+                <Copy size={16} />
               </button>
             </div>
             {renderUsernameStatus()}
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           <div className="lg:col-span-2 p-6 bg-white/50 border border-slate-200/50 rounded-xl space-y-6 backdrop-blur-lg shadow-md">
             <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-slate-800 flex items-center"><User size={20} className="mr-2"/>Profile</h3>
+              <h3 className="text-xl font-semibold text-slate-800 flex items-center"><User size={20} className="mr-2" />Profile</h3>
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-2">Display Name</label>
-                <input type="text" id="name" name="name" value={profileData.name} onChange={handleProfileChange} placeholder="e.g., Jane Doe" className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg"/>
+                <input type="text" id="name" name="name" value={profileData.name} onChange={handleProfileChange} placeholder="e.g., Jane Doe" className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-2">Profile Picture</label>
                 {profileData.imageUrl ? (
                   <div className="flex items-center gap-4">
-                    <Image src={profileData.imageUrl} alt="Profile preview" width={64} height={64} className="rounded-full object-cover w-16 h-16"/>
+                    <Image src={profileData.imageUrl} alt="Profile preview" width={64} height={64} className="rounded-full object-cover w-16 h-16" />
                     <div className="flex-grow">
                       <label htmlFor="profile-upload" className="w-full text-center text-sm font-semibold py-2 px-4 rounded-lg bg-white border border-slate-300 cursor-pointer hover:bg-slate-50 transition-colors block">Change</label>
-                      <button onClick={() => setProfileData(prev => ({...prev, imageUrl: ''}))} className="w-full text-center text-sm text-slate-500 mt-2 hover:text-red-600">Remove</button>
+                      <button onClick={() => setProfileData(prev => ({ ...prev, imageUrl: '' }))} className="w-full text-center text-sm text-slate-500 mt-2 hover:text-red-600">Remove</button>
                     </div>
                   </div>
                 ) : (
                   <label htmlFor="profile-upload" className="w-full border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/80 transition-all group flex items-center justify-center gap-2">
-                    {isUploading.profile ? <Loader2 className="animate-spin" size={20}/> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20}/>}
+                    {isUploading.profile ? <Loader2 className="animate-spin" size={20} /> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20} />}
                     <span className="text-slate-600 font-semibold">{isUploading.profile ? 'Uploading...' : 'Upload Image (<5MB)'}</span>
                   </label>
                 )}
@@ -417,7 +417,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="border-t border-slate-200 pt-6 space-y-4">
-              <h3 className="text-xl font-semibold text-slate-800 flex items-center"><Palette size={20} className="mr-2"/> Appearance</h3>
+              <h3 className="text-xl font-semibold text-slate-800 flex items-center"><Palette size={20} className="mr-2" /> Appearance</h3>
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-2">Page Background Type</label>
                 <select name="type" value={profileData.theme.background.type} onChange={handleBackgroundChange} className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg">
@@ -429,29 +429,29 @@ export default function ProfilePage() {
               {profileData.theme.background.type === 'solid' && (
                 <div>
                   <label htmlFor="color" className="block text-sm font-medium text-slate-600 mb-2">Page Background Color</label>
-                  <input type="color" id="color" name="color" value={profileData.theme.background.color} onChange={handleBackgroundChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg cursor-pointer"/>
+                  <input type="color" id="color" name="color" value={profileData.theme.background.color} onChange={handleBackgroundChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg cursor-pointer" />
                 </div>
               )}
               {profileData.theme.background.type === 'gradient' && (
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label htmlFor="gradientStart" className="block text-sm font-medium text-slate-600 mb-2">Start Color</label><input type="color" id="gradientStart" name="gradientStart" value={profileData.theme.background.gradientStart} onChange={handleBackgroundChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg"/></div>
-                  <div><label htmlFor="gradientEnd" className="block text-sm font-medium text-slate-600 mb-2">End Color</label><input type="color" id="gradientEnd" name="gradientEnd" value={profileData.theme.background.gradientEnd} onChange={handleBackgroundChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg"/></div>
+                  <div><label htmlFor="gradientStart" className="block text-sm font-medium text-slate-600 mb-2">Start Color</label><input type="color" id="gradientStart" name="gradientStart" value={profileData.theme.background.gradientStart} onChange={handleBackgroundChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg" /></div>
+                  <div><label htmlFor="gradientEnd" className="block text-sm font-medium text-slate-600 mb-2">End Color</label><input type="color" id="gradientEnd" name="gradientEnd" value={profileData.theme.background.gradientEnd} onChange={handleBackgroundChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg" /></div>
                 </div>
               )}
               {profileData.theme.background.type === 'image' && (
-                 <div>
+                <div>
                   <label className="block text-sm font-medium text-slate-600 mb-2">Page Background Image</label>
                   {profileData.theme.background.imageUrl ? (
                     <div className="flex items-center gap-4">
-                      <Image src={profileData.theme.background.imageUrl} alt="Background preview" width={64} height={36} className="rounded-md object-cover w-16 h-9"/>
-                       <div className="flex-grow">
+                      <Image src={profileData.theme.background.imageUrl} alt="Background preview" width={64} height={36} className="rounded-md object-cover w-16 h-9" />
+                      <div className="flex-grow">
                         <label htmlFor="background-upload" className="w-full text-center text-sm font-semibold py-2 px-4 rounded-lg bg-white border border-slate-300 cursor-pointer hover:bg-slate-50 transition-colors block">Change</label>
-                         <button onClick={() => setProfileData(prev => ({...prev, theme: {...prev.theme, background: {...prev.theme.background, imageUrl: ''}}}))} className="w-full text-center text-sm text-slate-500 mt-2 hover:text-red-600">Remove</button>
+                        <button onClick={() => setProfileData(prev => ({ ...prev, theme: { ...prev.theme, background: { ...prev.theme.background, imageUrl: '' } } }))} className="w-full text-center text-sm text-slate-500 mt-2 hover:text-red-600">Remove</button>
                       </div>
                     </div>
                   ) : (
                     <label htmlFor="background-upload" className="w-full border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/80 group flex items-center justify-center gap-2">
-                      {isUploading.background ? <Loader2 className="animate-spin" size={20}/> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20}/>}
+                      {isUploading.background ? <Loader2 className="animate-spin" size={20} /> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20} />}
                       <span className="text-slate-600 font-semibold">{isUploading.background ? 'Uploading...' : 'Upload Image (<5MB)'}</span>
                     </label>
                   )}
@@ -461,11 +461,11 @@ export default function ProfilePage() {
               <div className="pt-4 border-t border-slate-200 space-y-4">
                 <div>
                   <label htmlFor="containerColor" className="block text-sm font-medium text-slate-600 mb-2">Container Color</label>
-                  <input type="color" id="containerColor" name="containerColor" value={profileData.theme.containerColor} onChange={handleThemeChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg"/>
+                  <input type="color" id="containerColor" name="containerColor" value={profileData.theme.containerColor} onChange={handleThemeChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><label htmlFor="buttonColor" className="block text-sm font-medium text-slate-600 mb-2">Button Color</label><input type="color" id="buttonColor" name="buttonColor" value={profileData.theme.buttonColor} onChange={handleThemeChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg"/></div>
-                  <div><label htmlFor="textColor" className="block text-sm font-medium text-slate-600 mb-2">Button Text Color</label><input type="color" id="textColor" name="textColor" value={profileData.theme.textColor} onChange={handleThemeChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg"/></div>
+                  <div><label htmlFor="buttonColor" className="block text-sm font-medium text-slate-600 mb-2">Button Color</label><input type="color" id="buttonColor" name="buttonColor" value={profileData.theme.buttonColor} onChange={handleThemeChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg" /></div>
+                  <div><label htmlFor="textColor" className="block text-sm font-medium text-slate-600 mb-2">Button Text Color</label><input type="color" id="textColor" name="textColor" value={profileData.theme.textColor} onChange={handleThemeChange} className="w-full h-10 p-1 bg-white border border-slate-200 rounded-lg" /></div>
                 </div>
               </div>
               <div>
@@ -477,11 +477,11 @@ export default function ProfilePage() {
               <div>
                 <label className="block text-sm font-medium text-slate-600 mb-2">Button Style</label>
                 <div className="grid grid-cols-3 gap-2">
-                    {(['rounded', 'full', 'square'] as const).map(style => (
-                        <button key={style} onClick={() => handleButtonStyleChange(style)} className={`py-2 text-sm font-semibold border-2 rounded-lg transition-colors ${profileData.theme.buttonStyle === style ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300'}`}>
-                           {style.charAt(0).toUpperCase() + style.slice(1)}
-                        </button>
-                    ))}
+                  {(['rounded', 'full', 'square'] as const).map(style => (
+                    <button key={style} onClick={() => handleButtonStyleChange(style)} className={`py-2 text-sm font-semibold border-2 rounded-lg transition-colors ${profileData.theme.buttonStyle === style ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-700 border-slate-300'}`}>
+                      {style.charAt(0).toUpperCase() + style.slice(1)}
+                    </button>
+                  ))}
                 </div>
               </div>
               <div className="pt-4 border-t border-slate-200 space-y-2">
@@ -498,28 +498,28 @@ export default function ProfilePage() {
                 </div>
                 {profileData.theme.overlay?.enabled && (
                   <div>
-                  {profileData.theme.overlay.imageUrl ? (
-                    <div className="flex items-center gap-4 mt-2">
-                      <Image src={profileData.theme.overlay.imageUrl} alt="Overlay preview" width={48} height={48} className="object-contain w-12 h-12"/>
-                      <div className="flex-grow">
-                        <label htmlFor="overlay-upload" className="w-full text-center text-sm font-semibold py-2 px-4 rounded-lg bg-white border border-slate-300 cursor-pointer hover:bg-slate-50 transition-colors block">Change</label>
-                        <button onClick={() => setProfileData(prev => ({...prev, theme: {...prev.theme, overlay: {...prev.theme.overlay, imageUrl: ''}}}))} className="w-full text-center text-sm text-slate-500 mt-2 hover:text-red-600">Remove</button>
+                    {profileData.theme.overlay.imageUrl ? (
+                      <div className="flex items-center gap-4 mt-2">
+                        <Image src={profileData.theme.overlay.imageUrl} alt="Overlay preview" width={48} height={48} className="object-contain w-12 h-12" />
+                        <div className="flex-grow">
+                          <label htmlFor="overlay-upload" className="w-full text-center text-sm font-semibold py-2 px-4 rounded-lg bg-white border border-slate-300 cursor-pointer hover:bg-slate-50 transition-colors block">Change</label>
+                          <button onClick={() => setProfileData(prev => ({ ...prev, theme: { ...prev.theme, overlay: { ...prev.theme.overlay, imageUrl: '' } } }))} className="w-full text-center text-sm text-slate-500 mt-2 hover:text-red-600">Remove</button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <label htmlFor="overlay-upload" className="mt-2 w-full border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/80 transition-all group flex items-center justify-center gap-2">
-                      {isUploading.overlay ? <Loader2 className="animate-spin" size={20}/> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20}/>}
-                      <span className="text-slate-600 font-semibold">{isUploading.overlay ? 'Uploading...' : 'Upload Icon (<5MB)'}</span>
-                    </label>
-                  )}
-                  <input id="overlay-upload" type="file" accept="image/png, image/jpeg, image/gif" onChange={(e) => handleFileUpload(e, 'overlay')} className="hidden" />
-                </div>
+                    ) : (
+                      <label htmlFor="overlay-upload" className="mt-2 w-full border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/80 transition-all group flex items-center justify-center gap-2">
+                        {isUploading.overlay ? <Loader2 className="animate-spin" size={20} /> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20} />}
+                        <span className="text-slate-600 font-semibold">{isUploading.overlay ? 'Uploading...' : 'Upload Icon (<5MB)'}</span>
+                      </label>
+                    )}
+                    <input id="overlay-upload" type="file" accept="image/png, image/jpeg, image/gif" onChange={(e) => handleFileUpload(e, 'overlay')} className="hidden" />
+                  </div>
                 )}
               </div>
             </div>
 
             <div className="border-t border-slate-200 pt-6">
-              <h3 className="text-xl font-semibold text-slate-800 mb-4 flex items-center"><Users size={20} className="mr-2"/>Social Links</h3>
+              <h3 className="text-xl font-semibold text-slate-800 mb-4 flex items-center"><Users size={20} className="mr-2" />Social Links</h3>
               <div className="space-y-4">
                 {(profileData.socials || []).map((social, index) => (
                   <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center p-3 bg-slate-50/80 rounded-lg border border-slate-200/60">
@@ -540,63 +540,63 @@ export default function ProfilePage() {
                       <option value="pinterest">Pinterest</option>
                       <option value="discord">Discord</option>
                     </select>
-                    <input type="url" value={social.url} onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)} placeholder="https://example.com" className="sm:col-span-7 px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
-                    <button onClick={() => removeSocialLink(index)} className="sm:col-span-1 text-red-500 hover:text-red-700 flex justify-center items-center h-full"><Trash2 size={18}/></button>
+                    <input type="url" value={social.url} onChange={(e) => handleSocialLinkChange(index, 'url', e.target.value)} placeholder="https://example.com" className="sm:col-span-7 px-3 py-2 bg-white border border-slate-200 rounded-lg" />
+                    <button onClick={() => removeSocialLink(index)} className="sm:col-span-1 text-red-500 hover:text-red-700 flex justify-center items-center h-full"><Trash2 size={18} /></button>
                   </div>
                 ))}
-                <button onClick={addSocialLink} className="w-full py-2 border-dashed border-2 border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold flex items-center justify-center gap-2"><Plus size={16}/>Add Social Link</button>
+                <button onClick={addSocialLink} className="w-full py-2 border-dashed border-2 border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold flex items-center justify-center gap-2"><Plus size={16} />Add Social Link</button>
               </div>
             </div>
 
             <div className="border-t border-slate-200 pt-6">
-              <h3 className="text-xl font-semibold text-slate-800 mb-4 flex items-center"><LinkIcon size={20} className="mr-2"/>Content Blocks</h3>
+              <h3 className="text-xl font-semibold text-slate-800 mb-4 flex items-center"><LinkIcon size={20} className="mr-2" />Content Blocks</h3>
               <div className="space-y-4">
                 {(profileData.blocks || []).map((block, index) => (
                   <div key={index} className="p-3 bg-slate-50/80 rounded-lg border border-slate-200/60 space-y-3">
                     <div className="grid grid-cols-12 gap-2 items-center">
-                       <select value={block.type} onChange={(e) => handleBlockChange(index, 'type', e.target.value)} className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg">
-                         <option value="link">Link Button</option>
-                         <option value="text">Text Block</option>
-                         <option value="gif">GIF</option>
-                         <option value="embed">Embed</option>
-                       </select>
-                       <button onClick={() => removeBlock(index)} className="col-span-1 text-red-500 hover:text-red-700 flex justify-center items-center h-full"><Trash2 size={18}/></button>
+                      <select value={block.type} onChange={(e) => handleBlockChange(index, 'type', e.target.value)} className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg">
+                        <option value="link">Link Button</option>
+                        <option value="text">Text Block</option>
+                        <option value="gif">GIF</option>
+                        <option value="embed">Embed</option>
+                      </select>
+                      <button onClick={() => removeBlock(index)} className="col-span-1 text-red-500 hover:text-red-700 flex justify-center items-center h-full"><Trash2 size={18} /></button>
                     </div>
 
                     {block.type === 'link' && (
-                       <>
-                         <div className="grid grid-cols-12 gap-2 items-center">
-                           <button onClick={() => handleToggleFeatured(index)} title="Mark as featured" className="col-span-1 flex justify-center items-center h-full">
-                             <Star size={18} className={block.featured ? 'text-yellow-500 fill-current' : 'text-slate-400'} />
-                           </button>
-                           <input type="text" value={block.title} onChange={(e) => handleBlockChange(index, 'title', e.target.value)} placeholder="Link Title" className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
-                         </div>
-                         <input type="url" value={block.url} onChange={(e) => handleBlockChange(index, 'url', e.target.value)} placeholder="https://example.com" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
-                       </>
+                      <>
+                        <div className="grid grid-cols-12 gap-2 items-center">
+                          <button onClick={() => handleToggleFeatured(index)} title="Mark as featured" className="col-span-1 flex justify-center items-center h-full">
+                            <Star size={18} className={block.featured ? 'text-yellow-500 fill-current' : 'text-slate-400'} />
+                          </button>
+                          <input type="text" value={block.title} onChange={(e) => handleBlockChange(index, 'title', e.target.value)} placeholder="Link Title" className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg" />
+                        </div>
+                        <input type="url" value={block.url} onChange={(e) => handleBlockChange(index, 'url', e.target.value)} placeholder="https://example.com" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg" />
+                      </>
                     )}
 
                     {block.type === 'text' && (
-                        <textarea 
-                            value={block.url} 
-                            onChange={(e) => handleBlockChange(index, 'url', e.target.value)} 
-                            placeholder="Enter your text here..." 
-                            className="w-full px-3 py-2 mt-2 bg-white border border-slate-200 rounded-lg" 
-                            rows={4}
-                        />
+                      <textarea
+                        value={block.url}
+                        onChange={(e) => handleBlockChange(index, 'url', e.target.value)}
+                        placeholder="Enter your text here..."
+                        className="w-full px-3 py-2 mt-2 bg-white border border-slate-200 rounded-lg"
+                        rows={4}
+                      />
                     )}
 
                     {block.type === 'gif' && (
-                       <div className="w-full">
+                      <div className="w-full">
                         {block.url ? (
                           <div className="flex items-center gap-4 mt-2">
-                            <Image src={block.url} alt="GIF preview" width={64} height={64} className="object-contain w-16 h-16 bg-slate-100 rounded"/>
+                            <Image src={block.url} alt="GIF preview" width={64} height={64} className="object-contain w-16 h-16 bg-slate-100 rounded" />
                             <div className="flex-grow">
                               <button onClick={() => handleBlockChange(index, 'url', '')} className="w-full text-center text-sm font-semibold py-2 px-4 rounded-lg bg-white border border-slate-300 cursor-pointer hover:bg-slate-50 transition-colors block">Remove</button>
                             </div>
                           </div>
                         ) : (
                           <label htmlFor={`gif-upload-${index}`} className="mt-2 w-full border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/80 transition-all group flex items-center justify-center gap-2">
-                            {isUploadingGif[index] ? <Loader2 className="animate-spin" size={20}/> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20}/>}
+                            {isUploadingGif[index] ? <Loader2 className="animate-spin" size={20} /> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20} />}
                             <span className="text-slate-600 font-semibold">{isUploadingGif[index] ? 'Uploading...' : 'Upload GIF (<10MB)'}</span>
                           </label>
                         )}
@@ -609,13 +609,13 @@ export default function ProfilePage() {
                     )}
                   </div>
                 ))}
-                <button onClick={addBlock} className="w-full py-2 border-dashed border-2 border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold flex items-center justify-center gap-2"><Plus size={16}/>Add Block</button>
+                <button onClick={addBlock} className="w-full py-2 border-dashed border-2 border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold flex items-center justify-center gap-2"><Plus size={16} />Add Block</button>
               </div>
             </div>
           </div>
           <div className="lg:col-span-3">
             <div className="lg:sticky top-12 p-4 rounded-3xl" style={getBackgroundStyle(profileData.theme.background)}>
-              <div className="w-full max-w-[340px] mx-auto overflow-hidden">
+              <div className="w-full max-w-[340px] mx-auto overflow-hidden rounded-2xl">
                 <div className="overflow-y-auto h-full">
                   <LinkPageTemplate data={profileData} ref={pageRef} />
                 </div>

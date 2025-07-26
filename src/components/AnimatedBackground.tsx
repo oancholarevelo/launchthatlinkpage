@@ -34,7 +34,7 @@ const AnimatedBackground = ({ imageUrl }: AnimatedBackgroundProps) => {
   if (!imageUrl) return null;
 
   return (
-    <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
       {icons.map((style, index) => (
         <div
           key={index}
