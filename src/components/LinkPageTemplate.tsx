@@ -3,9 +3,8 @@
 
 import React from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { Profile as ProfileData, blankProfile, SocialLink, ContentBlock } from '@/lib/profiles';
-import { Pencil, Github, Twitter, Linkedin, Instagram, Youtube, Globe, Facebook, Twitch, Music, MessageSquare, Image as ImageIcon } from 'lucide-react';
+import { Github, Twitter, Linkedin, Instagram, Youtube, Globe, Facebook, Twitch, Music, MessageSquare, Image as ImageIcon } from 'lucide-react';
 
 interface LinkPageTemplateProps {
   data: ProfileData;
@@ -37,8 +36,8 @@ const SocialIcon = ({ platform, url }: SocialLink) => {
 // Component to render different block types
 const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: ContentBlock, buttonStyle: string, buttonColor: string, textColor: string }) => {
   const isFeatured = block.featured;
-  const featuredClasses = isFeatured 
-    ? 'scale-105 ring-2 ring-indigo-500 ring-offset-2 animate-pulse' 
+  const featuredClasses = isFeatured
+    ? 'scale-105 ring-2 ring-indigo-500 ring-offset-2 animate-pulse'
     : 'hover:scale-105';
 
   switch (block.type) {
@@ -56,7 +55,7 @@ const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: 
       return (
         <div className="w-full overflow-hidden rounded-lg shadow-md" dangerouslySetInnerHTML={{ __html: block.url }} />
       );
-    
+
     case 'text':
       return (
         <div className="w-full text-center p-4 bg-white rounded-lg shadow-md text-slate-700">
@@ -77,7 +76,7 @@ const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: 
         );
       }
       return (
-        <a 
+        <a
           href={block.url}
           target="_blank"
           rel="noopener noreferrer"
@@ -109,7 +108,7 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
       default: return 'font-inter';
     }
   };
-  
+
   const getButtonStyleClass = (style: string) => {
     switch(style) {
         case 'full': return 'rounded-full';
@@ -119,8 +118,8 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
   }
 
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className={`relative flex flex-col items-center p-6 sm:p-8 w-full min-h-[600px] transition-colors duration-300 ${getFontClass(theme.font)} rounded-2xl shadow-xl overflow-hidden`}
       style={{ backgroundColor: theme.containerColor }}
     >
@@ -128,10 +127,10 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
       <div className="relative z-10 flex flex-col items-center w-full flex-grow">
         <div className="text-center">
           {data.imageUrl ? (
-            <Image 
-              src={data.imageUrl} 
-              alt={`${data.name}'s profile picture`} 
-              width={96} height={96} 
+            <Image
+              src={data.imageUrl}
+              alt={`${data.name}'s profile picture`}
+              width={96} height={96}
               className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white/50 shadow-lg"
             />
           ) : (
@@ -153,8 +152,8 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
 
         <div className="w-full mt-8 space-y-4">
           {(data.blocks || []).map((block, index) => (
-            <BlockRenderer 
-              key={index} 
+            <BlockRenderer
+              key={index}
               block={block}
               buttonStyle={getButtonStyleClass(theme.buttonStyle)}
               buttonColor={theme.buttonColor}
@@ -162,7 +161,7 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
             />
           ))}
         </div>
-        
+
         <div className="mt-auto pt-8 text-center space-y-3">
           <div className="inline-block bg-white border border-slate-200/60 shadow-sm px-3 py-1 rounded-full">
               <a href="https://buildthatthing.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 hover:text-indigo-600 font-semibold">

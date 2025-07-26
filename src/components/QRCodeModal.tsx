@@ -26,7 +26,7 @@ const QRCodeModal = ({ isOpen, onClose, url, username }: QRCodeModalProps) => {
       const pngUrl = canvas
         .toDataURL('image/png')
         .replace('image/png', 'image/octet-stream');
-      let downloadLink = document.createElement('a');
+      const downloadLink = document.createElement('a');
       downloadLink.href = pngUrl;
       downloadLink.download = `${username}-linkpage-qr.png`;
       document.body.appendChild(downloadLink);
@@ -44,13 +44,13 @@ const QRCodeModal = ({ isOpen, onClose, url, username }: QRCodeModalProps) => {
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Share Your Page</h2>
         <p className="text-slate-500 mb-6">Scan this QR code to open your linkpage.</p>
         <div ref={qrRef} className="p-4 border-4 border-slate-100 rounded-lg inline-block">
-          <QRCodeCanvas 
-            value={url} 
-            size={200} 
-            bgColor={"#ffffff"} 
-            fgColor={"#000000"} 
-            level={"L"} 
-            includeMargin={false} 
+          <QRCodeCanvas
+            value={url}
+            size={200}
+            bgColor={"#ffffff"}
+            fgColor={"#000000"}
+            level={"L"}
+            includeMargin={false}
           />
         </div>
         <p className="text-sm text-indigo-600 font-semibold mt-4 break-all">{url}</p>
