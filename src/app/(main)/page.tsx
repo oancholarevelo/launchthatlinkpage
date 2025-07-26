@@ -2,8 +2,13 @@
 
 import Link from 'next/link';
 import { Link2, PlusCircle } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function HomePage() {
+  useEffect(() => {
+    document.title = 'Launch That Linkpage | Create Your Own Link Page';
+  }, []);
+
   return (
     <main className="flex flex-col items-center justify-center p-8 bg-transparent">
       <div className="text-center">

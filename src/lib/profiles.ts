@@ -28,7 +28,7 @@ export interface Theme {
 
 // UPDATED: Renamed 'Link' to 'ContentBlock' and added a 'type' property
 export interface ContentBlock {
-  type: 'link' | 'video' | 'embed';
+  type: 'link' | 'gif' | 'embed';
   title: string;
   url: string;
   featured?: boolean;

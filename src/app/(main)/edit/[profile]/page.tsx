@@ -48,6 +48,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState<{ profile: boolean; background: boolean; overlay: boolean }>({ profile: false, background: false, overlay: false });
+  const [isUploadingGif, setIsUploadingGif] = useState<{ [index: number]: boolean }>({});
   const [username, setUsername] = useState(profileKey === 'custom' ? '' : profileKey);
   
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
@@ -55,6 +56,14 @@ export default function ProfilePage() {
   
   const pageRef = useRef<HTMLDivElement>(null);
   
+  useEffect(() => {
+    if (profileKey === 'custom') {
+        document.title = 'Create New Page | Linkpage Editor';
+    } else {
+        document.title = `Editing ${profileKey} | Linkpage Editor`;
+    }
+  }, [profileKey]);
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -147,6 +156,38 @@ export default function ProfilePage() {
       console.error("Error uploading file:", error);
     } finally {
       setIsUploading(prev => ({ ...prev, [type]: false }));
+      e.target.value = '';
+    }
+  };
+
+  const handleBlockFileUpload = async (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    if (!user || !username.trim()) {
+      alert("Please enter a username before uploading images.");
+      return;
+    }
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) { // Increased limit for GIFs
+        alert(`File is too large. Max 10MB.`);
+        e.target.value = '';
+        return;
+    }
+
+    setIsUploadingGif(prev => ({ ...prev, [index]: true }));
+
+    const filePath = `profiles/${user.uid}/block_${index}_${Date.now()}`;
+    const storageRef = ref(storage, filePath);
+
+    try {
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+      handleBlockChange(index, 'url', downloadURL);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      alert('Failed to upload GIF. Please try again.');
+    } finally {
+      setIsUploadingGif(prev => ({ ...prev, [index]: false }));
       e.target.value = '';
     }
   };
@@ -445,7 +486,7 @@ export default function ProfilePage() {
               </div>
               <div className="pt-4 border-t border-slate-200 space-y-2">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="overlayEnabled" className="block text-sm font-medium text-slate-600">Floating Icon</label>
+                  <label htmlFor="overlayEnabled" className="block text-sm font-medium text-slate-600">Background Icons</label>
                   <input
                     type="checkbox"
                     id="overlayEnabled"
@@ -515,30 +556,46 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-12 gap-2 items-center">
                        <select value={block.type} onChange={(e) => handleBlockChange(index, 'type', e.target.value)} className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg">
                          <option value="link">Link Button</option>
-                         <option value="video">Video / GIF</option>
+                         <option value="gif">GIF</option>
                          <option value="embed">Embed</option>
                        </select>
                        <button onClick={() => removeBlock(index)} className="col-span-1 text-red-500 hover:text-red-700 flex justify-center items-center h-full"><Trash2 size={18}/></button>
                     </div>
 
                     {block.type === 'link' && (
-                       <div className="grid grid-cols-12 gap-2 items-center">
-                         <button onClick={() => handleToggleFeatured(index)} title="Mark as featured" className="col-span-1 flex justify-center items-center h-full">
-                           <Star size={18} className={block.featured ? 'text-yellow-500 fill-current' : 'text-slate-400'} />
-                         </button>
-                         <input type="text" value={block.title} onChange={(e) => handleBlockChange(index, 'title', e.target.value)} placeholder="Link Title" className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
-                       </div>
+                       <>
+                         <div className="grid grid-cols-12 gap-2 items-center">
+                           <button onClick={() => handleToggleFeatured(index)} title="Mark as featured" className="col-span-1 flex justify-center items-center h-full">
+                             <Star size={18} className={block.featured ? 'text-yellow-500 fill-current' : 'text-slate-400'} />
+                           </button>
+                           <input type="text" value={block.title} onChange={(e) => handleBlockChange(index, 'title', e.target.value)} placeholder="Link Title" className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
+                         </div>
+                         <input type="url" value={block.url} onChange={(e) => handleBlockChange(index, 'url', e.target.value)} placeholder="https://example.com" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
+                       </>
                     )}
 
-                    {block.type === 'video' && (
-                       <input type="url" value={block.url} onChange={(e) => handleBlockChange(index, 'url', e.target.value)} placeholder="YouTube or .gif URL" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
+                    {block.type === 'gif' && (
+                       <div className="w-full">
+                        {block.url ? (
+                          <div className="flex items-center gap-4 mt-2">
+                            <Image src={block.url} alt="GIF preview" width={64} height={64} className="object-contain w-16 h-16 bg-slate-100 rounded"/>
+                            <div className="flex-grow">
+                              <button onClick={() => handleBlockChange(index, 'url', '')} className="w-full text-center text-sm font-semibold py-2 px-4 rounded-lg bg-white border border-slate-300 cursor-pointer hover:bg-slate-50 transition-colors block">Remove</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <label htmlFor={`gif-upload-${index}`} className="mt-2 w-full border-2 border-dashed border-slate-300 rounded-lg p-3 text-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/80 transition-all group flex items-center justify-center gap-2">
+                            {isUploadingGif[index] ? <Loader2 className="animate-spin" size={20}/> : <UploadCloud className="text-slate-400 group-hover:text-indigo-600" size={20}/>}
+                            <span className="text-slate-600 font-semibold">{isUploadingGif[index] ? 'Uploading...' : 'Upload GIF (<10MB)'}</span>
+                          </label>
+                        )}
+                        <input id={`gif-upload-${index}`} type="file" accept="image/gif" onChange={(e) => handleBlockFileUpload(e, index)} className="hidden" />
+                      </div>
                     )}
 
                     {block.type === 'embed' && (
                       <textarea value={block.url} onChange={(e) => handleBlockChange(index, 'url', e.target.value)} placeholder="Paste your <iframe> embed code here" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-mono text-xs" rows={4}></textarea>
                     )}
-                    
-                    {block.type !== 'video' && block.type !== 'embed' && <input type="url" value={block.url} onChange={(e) => handleBlockChange(index, 'url', e.target.value)} placeholder="https://example.com" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"/>}
                   </div>
                 ))}
                 <button onClick={addBlock} className="w-full py-2 border-dashed border-2 border-slate-300 rounded-lg text-slate-600 hover:bg-slate-100 font-semibold flex items-center justify-center gap-2"><Plus size={16}/>Add Block</button>

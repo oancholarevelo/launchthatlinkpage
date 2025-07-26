@@ -1,9 +1,12 @@
 // src/components/LinkPageTemplate.tsx
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Profile as ProfileData, blankProfile, SocialLink, ContentBlock } from '@/lib/profiles';
 import { Pencil, Github, Twitter, Linkedin, Instagram, Youtube, Globe, Facebook, Twitch, Music, MessageSquare, Image as ImageIcon } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 interface LinkPageTemplateProps {
   data: ProfileData;
@@ -32,14 +35,7 @@ const SocialIcon = ({ platform, url }: SocialLink) => {
   );
 };
 
-// NEW: Helper to extract YouTube video ID from various URL formats
-const getYouTubeId = (url: string): string | null => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : null;
-};
-
-// NEW: Component to render different block types
+// Component to render different block types
 const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: ContentBlock, buttonStyle: string, buttonColor: string, textColor: string }) => {
   const isFeatured = block.featured;
   const featuredClasses = isFeatured 
@@ -47,30 +43,15 @@ const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: 
     : 'hover:scale-105';
 
   switch (block.type) {
-    case 'video':
-      const youtubeId = getYouTubeId(block.url);
-      if (youtubeId) {
-        return (
-          <div className="aspect-video w-full overflow-hidden rounded-lg shadow-md">
-            <iframe
-              className="w-full h-full"
-              src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
-              title={block.title || "YouTube video player"}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
-          </div>
-        );
-      }
-       if (block.url.match(/\.(gif|GIF)$/)) {
+    case 'gif':
+      if (block.url) {
         return (
           <div className="w-full overflow-hidden rounded-lg shadow-md">
              <Image src={block.url} alt={block.title || 'GIF'} width={500} height={300} className="w-full h-auto" />
           </div>
         )
-       }
-      // Fallback for non-YouTube/GIF video links
-      return <p className="text-center text-xs text-red-500">Invalid Video or GIF URL</p>;
+      }
+      return <p className="text-center text-xs text-red-500">GIF not available</p>;
 
     case 'embed':
       return (
@@ -79,6 +60,16 @@ const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: 
 
     case 'link':
     default:
+      if (!block.url) {
+        return (
+          <div
+            className={`block w-full p-4 text-center shadow-md transition-all duration-200 ${buttonStyle} opacity-50 cursor-not-allowed`}
+            style={{ backgroundColor: buttonColor, color: textColor }}
+          >
+            <p className="font-semibold">{block.title || 'Link (no URL provided)'}</p>
+          </div>
+        );
+      }
       return (
         <a 
           href={block.url}
@@ -95,11 +86,27 @@ const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: 
 
 
 const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>(({ data, profileKey }, ref) => {
+  const { user } = useAuth();
+  const isOwner = user && user.uid === data.uid;
   
   const theme = { ...blankProfile.theme, ...data.theme };
   theme.background = { ...blankProfile.theme.background, ...theme.background };
   // Ensure overlay object exists
   theme.overlay = { ...blankProfile.theme.overlay, ...theme.overlay };
+
+  const [iconPositions, setIconPositions] = useState<{top: string; left: string; size: number; opacity: number}[]>([]);
+
+  useEffect(() => {
+      if (theme.overlay.enabled && theme.overlay.imageUrl) {
+          const positions = Array.from({ length: 15 }).map(() => ({
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              size: Math.floor(Math.random() * 20) + 20, // size between 20px and 40px
+              opacity: Math.random() * 0.4 + 0.1, // opacity between 0.1 and 0.5
+          }));
+          setIconPositions(positions);
+      }
+  }, [theme.overlay.enabled, theme.overlay.imageUrl]);
 
   const getFontClass = (font: string) => {
     switch (font) {
@@ -125,65 +132,78 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
   return (
     <div 
       ref={ref} 
-      className={`relative flex flex-col items-center p-6 sm:p-8 w-full min-h-[600px] transition-colors duration-300 ${getFontClass(theme.font)} rounded-2xl shadow-xl`}
+      className={`relative flex flex-col items-center p-6 sm:p-8 w-full min-h-[600px] transition-colors duration-300 ${getFontClass(theme.font)} rounded-2xl shadow-xl overflow-hidden`}
       style={{ backgroundColor: theme.containerColor }}
     >
-      {/* NEW: Floating Overlay Icon */}
+      {/* Background Overlay Icons */}
       {theme.overlay.enabled && theme.overlay.imageUrl && (
-        <div className="absolute bottom-5 right-5 w-12 h-12 animate-bounce z-10">
-          <Image src={theme.overlay.imageUrl} alt="Floating Icon" layout="fill" className="object-contain" />
-        </div>
-      )}
-
-      <div className="text-center">
-        {data.imageUrl ? (
-          <Image 
-            src={data.imageUrl} 
-            alt={`${data.name}'s profile picture`} 
-            width={96} height={96} 
-            className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white/50 shadow-lg"
-          />
-        ) : (
-          <div className="w-24 h-24 rounded-full mx-auto bg-slate-300 border-4 border-white/50 shadow-lg flex items-center justify-center">
-            <span className="text-slate-500 text-3xl font-bold">{data.name.charAt(0)}</span>
-          </div>
-        )}
-        <h1 className="text-2xl font-bold text-slate-900 mt-4">{data.name}</h1>
-        <p className="text-slate-600 mt-2 text-center max-w-xs">{data.bio}</p>
-      </div>
-
-      {data.socials && data.socials.length > 0 && (
-        <div className="flex items-center justify-center gap-4 mt-6">
-          {data.socials.map((social, index) => (
-            <SocialIcon key={index} {...social} />
+        <div className="absolute inset-0 z-0">
+          {iconPositions.map((pos, i) => (
+            <Image 
+              key={i} 
+              src={theme.overlay.imageUrl} 
+              alt="" 
+              width={pos.size} 
+              height={pos.size} 
+              className="absolute object-contain"
+              style={{ top: pos.top, left: pos.left, opacity: pos.opacity, pointerEvents: 'none' }}
+              unoptimized
+            />
           ))}
         </div>
       )}
 
-      {/* UPDATED: Map over blocks and use the BlockRenderer */}
-      <div className="w-full mt-8 space-y-4">
-        {(data.blocks || []).map((block, index) => (
-          <BlockRenderer 
-            key={index} 
-            block={block}
-            buttonStyle={getButtonStyleClass(theme.buttonStyle)}
-            buttonColor={theme.buttonColor}
-            textColor={theme.textColor}
-          />
-        ))}
-      </div>
-      
-      <div className="mt-auto pt-8 text-center space-y-3">
-        {profileKey && (
-          <Link href={`/edit/${profileKey}`} className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-indigo-600 font-semibold transition-colors">
-            <Pencil size={12} />
-            Edit this Page
-          </Link>
+      {/* Page Content Wrapper */}
+      <div className="relative z-10 flex flex-col items-center w-full h-full">
+        <div className="text-center">
+          {data.imageUrl ? (
+            <Image 
+              src={data.imageUrl} 
+              alt={`${data.name}'s profile picture`} 
+              width={96} height={96} 
+              className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white/50 shadow-lg"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full mx-auto bg-slate-300 border-4 border-white/50 shadow-lg flex items-center justify-center">
+              <span className="text-slate-500 text-3xl font-bold">{data.name.charAt(0)}</span>
+            </div>
+          )}
+          <h1 className="text-2xl font-bold text-slate-900 mt-4">{data.name}</h1>
+          <p className="text-slate-600 mt-2 text-center max-w-xs">{data.bio}</p>
+        </div>
+
+        {data.socials && data.socials.length > 0 && (
+          <div className="flex items-center justify-center gap-4 mt-6">
+            {data.socials.map((social, index) => (
+              <SocialIcon key={index} {...social} />
+            ))}
+          </div>
         )}
-        <div className="inline-block bg-white border border-slate-200/60 shadow-sm px-3 py-1 rounded-full">
-            <a href="https://buildthatthing.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 hover:text-indigo-600 font-semibold">
-              Powered by <strong>Build That Thing</strong>
-            </a>
+
+        <div className="w-full mt-8 space-y-4">
+          {(data.blocks || []).map((block, index) => (
+            <BlockRenderer 
+              key={index} 
+              block={block}
+              buttonStyle={getButtonStyleClass(theme.buttonStyle)}
+              buttonColor={theme.buttonColor}
+              textColor={theme.textColor}
+            />
+          ))}
+        </div>
+        
+        <div className="mt-auto pt-8 text-center space-y-3">
+          {isOwner && profileKey && (
+            <Link href={`/edit/${profileKey}`} className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-indigo-600 font-semibold transition-colors">
+              <Pencil size={12} />
+              Edit this Page
+            </Link>
+          )}
+          <div className="inline-block bg-white border border-slate-200/60 shadow-sm px-3 py-1 rounded-full">
+              <a href="https://buildthatthing.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 hover:text-indigo-600 font-semibold">
+                Powered by <strong>Build That Thing</strong>
+              </a>
+          </div>
         </div>
       </div>
     </div>
