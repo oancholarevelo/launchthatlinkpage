@@ -47,7 +47,7 @@ export interface Profile {
   blocks: ContentBlock[]; // UPDATED: from 'links' to 'blocks'
   socials: SocialLink[];
   theme: Theme;
-  links?: any; // Keep this to handle old data structure before migration
+  links?: LegacyLink[]; // Keep this to handle old data structure before migration
 }
 
 // Define a type for the legacy link structure
@@ -65,7 +65,6 @@ export const getProfile = async (key: string): Promise<Profile | null> => {
     const data = docSnap.data() as Profile;
     // Migration for old profiles that have 'links' instead of 'blocks'
     if (data.links && !data.blocks) {
-      // FIX: Replaced 'any' with 'LegacyLink' type
       data.blocks = data.links.map((link: LegacyLink) => ({ ...link, type: 'link' }));
       delete data.links;
     }

@@ -35,6 +35,9 @@ type LegacyLink = {
 };
 
 
+type ProfileWithLegacy = ProfileData & { links?: LegacyLink[] };
+
+
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const params = useParams();
@@ -66,7 +69,7 @@ export default function ProfilePage() {
         return;
       }
       
-      const data = await getProfile(profileKey);
+      const data: ProfileWithLegacy | null = await getProfile(profileKey);
 
       if (data) {
         if (data.uid !== user.uid) {
@@ -78,8 +81,7 @@ export default function ProfilePage() {
         theme.background = { ...blankProfile.theme.background, ...theme.background };
         theme.overlay = { ...blankProfile.theme.overlay, ...theme.overlay };
         const socials = data.socials || [];
-        // FIX: Replaced 'any' with the 'LegacyLink' type for safer migration
-        const blocks = data.blocks || (data as any).links?.map((l: LegacyLink) => ({...l, type: 'link'})) || [];
+        const blocks = data.blocks || data.links?.map((l: LegacyLink) => ({...l, type: 'link'})) || [];
         setProfileData({ ...blankProfile, ...data, theme, socials, blocks });
       } else {
         setUsername(profileKey);
@@ -229,7 +231,6 @@ export default function ProfilePage() {
   const handleBlockChange = (index: number, field: keyof ContentBlock, value: string) => {
     setProfileData(prev => {
       const newBlocks = [...(prev.blocks || [])];
-      // FIX: Removed unnecessary 'as any'
       newBlocks[index] = { ...newBlocks[index], [field]: value };
       return { ...prev, blocks: newBlocks };
     });
