@@ -1,12 +1,11 @@
 // src/components/LinkPageTemplate.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Profile as ProfileData, blankProfile, SocialLink, ContentBlock } from '@/lib/profiles';
 import { Pencil, Github, Twitter, Linkedin, Instagram, Youtube, Globe, Facebook, Twitch, Music, MessageSquare, Image as ImageIcon } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
 
 interface LinkPageTemplateProps {
   data: ProfileData;
@@ -57,6 +56,13 @@ const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: 
       return (
         <div className="w-full overflow-hidden rounded-lg shadow-md" dangerouslySetInnerHTML={{ __html: block.url }} />
       );
+    
+    case 'text':
+      return (
+        <div className="w-full text-center p-4 bg-white rounded-lg shadow-md text-slate-700">
+          <p style={{ whiteSpace: 'pre-wrap' }}>{block.url}</p>
+        </div>
+      );
 
     case 'link':
     default:
@@ -85,28 +91,11 @@ const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: 
 };
 
 
-const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>(({ data, profileKey }, ref) => {
-  const { user } = useAuth();
-  const isOwner = user && user.uid === data.uid;
-  
+const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>(({ data }, ref) => {
   const theme = { ...blankProfile.theme, ...data.theme };
   theme.background = { ...blankProfile.theme.background, ...theme.background };
   // Ensure overlay object exists
   theme.overlay = { ...blankProfile.theme.overlay, ...theme.overlay };
-
-  const [iconPositions, setIconPositions] = useState<{top: string; left: string; size: number; opacity: number}[]>([]);
-
-  useEffect(() => {
-      if (theme.overlay.enabled && theme.overlay.imageUrl) {
-          const positions = Array.from({ length: 15 }).map(() => ({
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              size: Math.floor(Math.random() * 20) + 20, // size between 20px and 40px
-              opacity: Math.random() * 0.4 + 0.1, // opacity between 0.1 and 0.5
-          }));
-          setIconPositions(positions);
-      }
-  }, [theme.overlay.enabled, theme.overlay.imageUrl]);
 
   const getFontClass = (font: string) => {
     switch (font) {
@@ -135,26 +124,8 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
       className={`relative flex flex-col items-center p-6 sm:p-8 w-full min-h-[600px] transition-colors duration-300 ${getFontClass(theme.font)} rounded-2xl shadow-xl overflow-hidden`}
       style={{ backgroundColor: theme.containerColor }}
     >
-      {/* Background Overlay Icons */}
-      {theme.overlay.enabled && theme.overlay.imageUrl && (
-        <div className="absolute inset-0 z-0">
-          {iconPositions.map((pos, i) => (
-            <Image 
-              key={i} 
-              src={theme.overlay.imageUrl} 
-              alt="" 
-              width={pos.size} 
-              height={pos.size} 
-              className="absolute object-contain"
-              style={{ top: pos.top, left: pos.left, opacity: pos.opacity, pointerEvents: 'none' }}
-              unoptimized
-            />
-          ))}
-        </div>
-      )}
-
       {/* Page Content Wrapper */}
-      <div className="relative z-10 flex flex-col items-center w-full h-full">
+      <div className="relative z-10 flex flex-col items-center w-full flex-grow">
         <div className="text-center">
           {data.imageUrl ? (
             <Image 
@@ -193,12 +164,6 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
         </div>
         
         <div className="mt-auto pt-8 text-center space-y-3">
-          {isOwner && profileKey && (
-            <Link href={`/edit/${profileKey}`} className="inline-flex items-center gap-2 text-xs text-slate-500 hover:text-indigo-600 font-semibold transition-colors">
-              <Pencil size={12} />
-              Edit this Page
-            </Link>
-          )}
           <div className="inline-block bg-white border border-slate-200/60 shadow-sm px-3 py-1 rounded-full">
               <a href="https://buildthatthing.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 hover:text-indigo-600 font-semibold">
                 Powered by <strong>Build That Thing</strong>

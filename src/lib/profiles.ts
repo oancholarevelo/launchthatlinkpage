@@ -28,7 +28,7 @@ export interface Theme {
 
 // UPDATED: Renamed 'Link' to 'ContentBlock' and added a 'type' property
 export interface ContentBlock {
-  type: 'link' | 'gif' | 'embed';
+  type: 'link' | 'gif' | 'embed' | 'text';
   title: string;
   url: string;
   featured?: boolean;
@@ -102,7 +102,10 @@ export const blankProfile: Profile = {
   name: '',
   bio: '',
   imageUrl: '',
-  blocks: [{ type: 'link', title: 'My Website', url: '', featured: false }],
+  blocks: [
+    { type: 'text', title: '', url: 'This is a text block. You can use it for introductions or announcements!', featured: false },
+    { type: 'link', title: 'My Website', url: '', featured: false }
+  ],
   socials: [],
   theme: {
     background: {

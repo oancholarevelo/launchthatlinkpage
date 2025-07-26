@@ -14,3 +14,20 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* NEW ANIMATION */
+@keyframes float {
+  0% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-25px) translateX(20px) rotate(10deg);
+  }
+  100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+  }
+}
+
+.animate-float {
+  animation: float ease-in-out infinite;
+}

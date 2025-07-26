@@ -556,6 +556,7 @@ export default function ProfilePage() {
                     <div className="grid grid-cols-12 gap-2 items-center">
                        <select value={block.type} onChange={(e) => handleBlockChange(index, 'type', e.target.value)} className="col-span-11 px-3 py-2 bg-white border border-slate-200 rounded-lg">
                          <option value="link">Link Button</option>
+                         <option value="text">Text Block</option>
                          <option value="gif">GIF</option>
                          <option value="embed">Embed</option>
                        </select>
@@ -572,6 +573,16 @@ export default function ProfilePage() {
                          </div>
                          <input type="url" value={block.url} onChange={(e) => handleBlockChange(index, 'url', e.target.value)} placeholder="https://example.com" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"/>
                        </>
+                    )}
+
+                    {block.type === 'text' && (
+                        <textarea 
+                            value={block.url} 
+                            onChange={(e) => handleBlockChange(index, 'url', e.target.value)} 
+                            placeholder="Enter your text here..." 
+                            className="w-full px-3 py-2 mt-2 bg-white border border-slate-200 rounded-lg" 
+                            rows={4}
+                        />
                     )}
 
                     {block.type === 'gif' && (

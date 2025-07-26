@@ -3,6 +3,7 @@ import LinkPageTemplate from '@/components/LinkPageTemplate';
 import { notFound } from 'next/navigation';
 import { Profile as ProfileData, blankProfile, getProfile } from '@/lib/profiles';
 import { Metadata } from 'next';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 type PublicProfilePageProps = {
   params: { profile: string };
@@ -60,11 +61,15 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
   const safeTheme = { ...blankProfile.theme, ...profileData.theme };
   safeTheme.background = { ...blankProfile.theme.background, ...safeTheme.background };
+  safeTheme.overlay = { ...blankProfile.theme.overlay, ...safeTheme.overlay };
   
   const backgroundStyle = getBackgroundStyle(safeTheme.background);
 
   return (
     <div className="flex justify-center items-center min-h-screen p-4 sm:p-8" style={backgroundStyle}>
+        {safeTheme.overlay.enabled && safeTheme.overlay.imageUrl && (
+          <AnimatedBackground imageUrl={safeTheme.overlay.imageUrl} />
+        )}
         <div className="w-full max-w-[380px]">
              <LinkPageTemplate 
                 data={{...profileData, theme: safeTheme }} 
