@@ -2,21 +2,116 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Profile as ProfileData, blankProfile } from '@/lib/profiles';
-import { Pencil } from 'lucide-react';
+import { Profile as ProfileData, blankProfile, SocialLink, ContentBlock } from '@/lib/profiles';
+import { Pencil, Github, Twitter, Linkedin, Instagram, Youtube, Globe, Facebook, Twitch, Music, MessageSquare, Image as ImageIcon } from 'lucide-react';
 
 interface LinkPageTemplateProps {
   data: ProfileData;
   profileKey?: string;
 }
 
+const SocialIcon = ({ platform, url }: SocialLink) => {
+  const icons = {
+    github: <Github size={20} />,
+    twitter: <Twitter size={20} />,
+    linkedin: <Linkedin size={20} />,
+    instagram: <Instagram size={20} />,
+    youtube: <Youtube size={20} />,
+    website: <Globe size={20} />,
+    facebook: <Facebook size={20} />,
+    twitch: <Twitch size={20} />,
+    pinterest: <ImageIcon size={20} />,
+    tiktok: <Music size={20} />,
+    discord: <MessageSquare size={20} />,
+  };
+
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-indigo-600 transition-colors">
+      {icons[platform] || <Globe size={20} />}
+    </a>
+  );
+};
+
+// NEW: Helper to extract YouTube video ID from various URL formats
+const getYouTubeId = (url: string): string | null => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+// NEW: Component to render different block types
+const BlockRenderer = ({ block, buttonStyle, buttonColor, textColor }: { block: ContentBlock, buttonStyle: string, buttonColor: string, textColor: string }) => {
+  const isFeatured = block.featured;
+  const featuredClasses = isFeatured 
+    ? 'scale-105 ring-2 ring-indigo-500 ring-offset-2 animate-pulse' 
+    : 'hover:scale-105';
+
+  switch (block.type) {
+    case 'video':
+      const youtubeId = getYouTubeId(block.url);
+      if (youtubeId) {
+        return (
+          <div className="aspect-video w-full overflow-hidden rounded-lg shadow-md">
+            <iframe
+              className="w-full h-full"
+              src={`https://www.youtube-nocookie.com/embed/${youtubeId}`}
+              title={block.title || "YouTube video player"}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        );
+      }
+       if (block.url.match(/\.(gif|GIF)$/)) {
+        return (
+          <div className="w-full overflow-hidden rounded-lg shadow-md">
+             <Image src={block.url} alt={block.title || 'GIF'} width={500} height={300} className="w-full h-auto" />
+          </div>
+        )
+       }
+      // Fallback for non-YouTube/GIF video links
+      return <p className="text-center text-xs text-red-500">Invalid Video or GIF URL</p>;
+
+    case 'embed':
+      return (
+        <div className="w-full overflow-hidden rounded-lg shadow-md" dangerouslySetInnerHTML={{ __html: block.url }} />
+      );
+
+    case 'link':
+    default:
+      return (
+        <a 
+          href={block.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`block w-full p-4 text-center shadow-md hover:shadow-lg transition-all duration-200 ${buttonStyle} ${featuredClasses}`}
+          style={{ backgroundColor: buttonColor, color: textColor }}
+        >
+          <p className="font-semibold">{block.title}</p>
+        </a>
+      );
+  }
+};
+
+
 const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>(({ data, profileKey }, ref) => {
   
   const theme = { ...blankProfile.theme, ...data.theme };
   theme.background = { ...blankProfile.theme.background, ...theme.background };
+  // Ensure overlay object exists
+  theme.overlay = { ...blankProfile.theme.overlay, ...theme.overlay };
 
   const getFontClass = (font: string) => {
-    return `font-${font.replace(/ /g, '-').toLowerCase()}`;
+    switch (font) {
+      case 'inter': return 'font-inter';
+      case 'lato': return 'font-lato';
+      case 'source-code-pro': return 'font-source-code-pro';
+      case 'poppins': return 'font-poppins';
+      case 'roboto-mono': return 'font-roboto-mono';
+      case 'playfair-display': return 'font-playfair-display';
+      case 'lora': return 'font-lora';
+      default: return 'font-inter';
+    }
   };
   
   const getButtonStyleClass = (style: string) => {
@@ -30,9 +125,16 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
   return (
     <div 
       ref={ref} 
-      className={`flex flex-col items-center p-6 sm:p-8 w-full min-h-full transition-colors duration-300 ${getFontClass(theme.font)}`}
+      className={`relative flex flex-col items-center p-6 sm:p-8 w-full min-h-[600px] transition-colors duration-300 ${getFontClass(theme.font)} rounded-2xl shadow-xl`}
       style={{ backgroundColor: theme.containerColor }}
     >
+      {/* NEW: Floating Overlay Icon */}
+      {theme.overlay.enabled && theme.overlay.imageUrl && (
+        <div className="absolute bottom-5 right-5 w-12 h-12 animate-bounce z-10">
+          <Image src={theme.overlay.imageUrl} alt="Floating Icon" layout="fill" className="object-contain" />
+        </div>
+      )}
+
       <div className="text-center">
         {data.imageUrl ? (
           <Image 
@@ -50,18 +152,24 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
         <p className="text-slate-600 mt-2 text-center max-w-xs">{data.bio}</p>
       </div>
 
+      {data.socials && data.socials.length > 0 && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          {data.socials.map((social, index) => (
+            <SocialIcon key={index} {...social} />
+          ))}
+        </div>
+      )}
+
+      {/* UPDATED: Map over blocks and use the BlockRenderer */}
       <div className="w-full mt-8 space-y-4">
-        {data.links.map((link, index) => (
-          <a 
-            href={link.url}
-            key={index}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`block w-full p-4 text-center shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200 ${getButtonStyleClass(theme.buttonStyle)}`}
-            style={{ backgroundColor: theme.buttonColor, color: theme.textColor }}
-          >
-            <p className="font-semibold">{link.title}</p>
-          </a>
+        {(data.blocks || []).map((block, index) => (
+          <BlockRenderer 
+            key={index} 
+            block={block}
+            buttonStyle={getButtonStyleClass(theme.buttonStyle)}
+            buttonColor={theme.buttonColor}
+            textColor={theme.textColor}
+          />
         ))}
       </div>
       
@@ -72,7 +180,6 @@ const LinkPageTemplate = React.forwardRef<HTMLDivElement, LinkPageTemplateProps>
             Edit this Page
           </Link>
         )}
-        {/* UPDATED: Changed the classes to create a solid white container */}
         <div className="inline-block bg-white border border-slate-200/60 shadow-sm px-3 py-1 rounded-full">
             <a href="https://buildthatthing.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 hover:text-indigo-600 font-semibold">
               Powered by <strong>Build That Thing</strong>

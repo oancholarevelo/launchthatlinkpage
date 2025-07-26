@@ -25,7 +25,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${lato.variable} ${sourceCodePro.variable} ${poppins.variable} ${robotoMono.variable} ${playfairDisplay.variable} ${lora.variable} font-sans bg-slate-50`}>
+      {/* UPDATED: Changed font-sans to font-inter for a more direct application of the default font */}
+      <body className={`${inter.variable} ${lato.variable} ${sourceCodePro.variable} ${poppins.variable} ${robotoMono.variable} ${playfairDisplay.variable} ${lora.variable} font-inter bg-slate-50`}>
         <AuthProvider>
           {children}
         </AuthProvider>

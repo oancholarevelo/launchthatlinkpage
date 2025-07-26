@@ -10,9 +10,8 @@ const config: Config = {
     ],
     theme: {
         extend: {
-            // UPDATED: Define font families using the CSS variables from layout.tsx
             fontFamily: {
-                sans: ['var(--font-inter)'], // Sets the default sans-serif font
+                sans: ['var(--font-inter)'],
                 inter: ['var(--font-inter)'],
                 lato: ['var(--font-lato)'],
                 'source-code-pro': ['var(--font-source-code-pro)'],
@@ -28,6 +27,9 @@ const config: Config = {
             },
         },
     },
-    plugins: [],
+    // UPDATED: Add the official forms plugin
+    plugins: [
+        require('@tailwindcss/forms'),
+    ],
 };
 export default config;

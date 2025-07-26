@@ -10,6 +10,12 @@ export interface Background {
   imageUrl: string;
 }
 
+// NEW: Added overlay object for the floating icon
+export interface Overlay {
+  enabled: boolean;
+  imageUrl: string;
+}
+
 export interface Theme {
   background: Background;
   containerColor: string;
@@ -17,10 +23,19 @@ export interface Theme {
   textColor: string;
   buttonStyle: 'rounded' | 'full' | 'square';
   font: 'inter' | 'lato' | 'source-code-pro' | 'poppins' | 'roboto-mono' | 'playfair-display' | 'lora';
+  overlay: Overlay; // NEW
 }
 
-export interface Link {
+// UPDATED: Renamed 'Link' to 'ContentBlock' and added a 'type' property
+export interface ContentBlock {
+  type: 'link' | 'video' | 'embed';
   title: string;
+  url: string;
+  featured?: boolean;
+}
+
+export interface SocialLink {
+  platform: 'github' | 'twitter' | 'linkedin' | 'instagram' | 'youtube' | 'website' | 'facebook' | 'tiktok' | 'twitch' | 'pinterest' | 'discord';
   url: string;
 }
 
@@ -29,7 +44,8 @@ export interface Profile {
   name: string;
   bio: string;
   imageUrl: string;
-  links: Link[];
+  blocks: ContentBlock[]; // UPDATED: from 'links' to 'blocks'
+  socials: SocialLink[];
   theme: Theme;
 }
 
@@ -38,7 +54,13 @@ export const getProfile = async (key: string): Promise<Profile | null> => {
   const docRef = doc(db, 'profiles', key);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
-    return docSnap.data() as Profile;
+    const data = docSnap.data();
+    // Migration for old profiles that have 'links' instead of 'blocks'
+    if (data.links && !data.blocks) {
+      data.blocks = data.links.map((link: any) => ({ ...link, type: 'link' }));
+      delete data.links;
+    }
+    return data as Profile;
   } else {
     return null;
   }
@@ -72,7 +94,8 @@ export const blankProfile: Profile = {
   name: '',
   bio: '',
   imageUrl: '',
-  links: [{ title: 'My Website', url: '' }],
+  blocks: [{ type: 'link', title: 'My Website', url: '', featured: false }],
+  socials: [],
   theme: {
     background: {
       type: 'solid',
@@ -86,5 +109,9 @@ export const blankProfile: Profile = {
     textColor: '#4f46e5',
     buttonStyle: 'rounded',
     font: 'inter',
+    overlay: { // NEW
+      enabled: false,
+      imageUrl: '',
+    }
   }
 };

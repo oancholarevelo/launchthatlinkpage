@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, UserCredential } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import { Link2 } from 'lucide-react';
 import Link from 'next/link';
@@ -17,10 +17,16 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  const handleSuccess = (userCredential: UserCredential) => {
+    const user = userCredential.user;
+    alert(`Successfully logged in as ${user.email}`);
+    router.push('/');
+  };
+
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push('/'); // Redirect to home after login
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      handleSuccess(userCredential);
     } catch (err: unknown) {
         if (err instanceof Error) {
             setError(err.message);
@@ -32,8 +38,8 @@ export default function LoginPage() {
   
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      router.push('/');
+      const userCredential = await signInWithPopup(auth, googleProvider);
+      handleSuccess(userCredential);
     } catch (err: unknown) {
         if (err instanceof Error) {
             setError(err.message);
