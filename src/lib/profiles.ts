@@ -47,17 +47,26 @@ export interface Profile {
   blocks: ContentBlock[]; // UPDATED: from 'links' to 'blocks'
   socials: SocialLink[];
   theme: Theme;
+  links?: any; // Keep this to handle old data structure before migration
 }
+
+// Define a type for the legacy link structure
+type LegacyLink = {
+  title: string;
+  url: string;
+  featured?: boolean;
+};
 
 export const getProfile = async (key: string): Promise<Profile | null> => {
   if (!key) return null;
   const docRef = doc(db, 'profiles', key);
   const docSnap = await getDoc(docRef);
   if (docSnap.exists()) {
-    const data = docSnap.data();
+    const data = docSnap.data() as Profile;
     // Migration for old profiles that have 'links' instead of 'blocks'
     if (data.links && !data.blocks) {
-      data.blocks = data.links.map((link: any) => ({ ...link, type: 'link' }));
+      // FIX: Replaced 'any' with 'LegacyLink' type
+      data.blocks = data.links.map((link: LegacyLink) => ({ ...link, type: 'link' }));
       delete data.links;
     }
     return data as Profile;

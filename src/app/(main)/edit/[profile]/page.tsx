@@ -1,3 +1,4 @@
+// src/app/(main)/edit/[profile]/page.tsx
 'use client';
 
 import { useState, useRef, useEffect, ChangeEvent } from 'react';
@@ -6,7 +7,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import LinkPageTemplate from '@/components/LinkPageTemplate';
 import { blankProfile, Profile as ProfileData, ContentBlock, SocialLink, getProfile, saveProfile } from '@/lib/profiles';
-import { ChevronsLeft, Save, Link as LinkIcon, Plus, Trash2, User, Copy, Palette, UploadCloud, Loader2, CheckCircle, XCircle, Star, Users, Film, Code } from 'lucide-react';
+// REMOVED 'Film' and 'Code' from this import
+import { ChevronsLeft, Save, Link as LinkIcon, Plus, Trash2, User, Copy, Palette, UploadCloud, Loader2, CheckCircle, XCircle, Star, Users } from 'lucide-react';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/context/AuthContext';
@@ -24,6 +26,13 @@ function useDebounce<T>(value: T, delay: number): T {
   }, [value, delay]);
   return debouncedValue;
 }
+
+// Type for the legacy link structure
+type LegacyLink = {
+  title: string;
+  url: string;
+  featured?: boolean;
+};
 
 
 export default function ProfilePage() {
@@ -69,7 +78,8 @@ export default function ProfilePage() {
         theme.background = { ...blankProfile.theme.background, ...theme.background };
         theme.overlay = { ...blankProfile.theme.overlay, ...theme.overlay };
         const socials = data.socials || [];
-        const blocks = data.blocks || (data as any).links?.map((l: any) => ({...l, type: 'link'})) || [];
+        // FIX: Replaced 'any' with the 'LegacyLink' type for safer migration
+        const blocks = data.blocks || (data as any).links?.map((l: LegacyLink) => ({...l, type: 'link'})) || [];
         setProfileData({ ...blankProfile, ...data, theme, socials, blocks });
       } else {
         setUsername(profileKey);
@@ -219,7 +229,8 @@ export default function ProfilePage() {
   const handleBlockChange = (index: number, field: keyof ContentBlock, value: string) => {
     setProfileData(prev => {
       const newBlocks = [...(prev.blocks || [])];
-      newBlocks[index] = { ...newBlocks[index], [field]: value as any };
+      // FIX: Removed unnecessary 'as any'
+      newBlocks[index] = { ...newBlocks[index], [field]: value };
       return { ...prev, blocks: newBlocks };
     });
   };
