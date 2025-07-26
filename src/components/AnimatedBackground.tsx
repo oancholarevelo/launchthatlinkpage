@@ -1,3 +1,4 @@
+// src/components/AnimatedBackground.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,7 +21,8 @@ const AnimatedBackground = ({ imageUrl }: AnimatedBackgroundProps) => {
   const [icons, setIcons] = useState<IconStyle[]>([]);
 
   useEffect(() => {
-    const newIcons: IconStyle[] = Array.from({ length: 20 }).map(() => ({
+    // Increased the number of icons from 20 to 40 for a fuller effect.
+    const newIcons: IconStyle[] = Array.from({ length: 40 }).map(() => ({
       top: `${Math.random() * 100}%`,
       left: `${Math.random() * 100}%`,
       size: Math.floor(Math.random() * 25) + 15, // 15px to 40px
