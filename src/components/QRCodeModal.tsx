@@ -18,43 +18,11 @@ const QRCodeModal = ({ isOpen, onClose, url, username }: QRCodeModalProps) => {
   if (!isOpen) return null;
 
   /**
-   * Downloads the generated QR code as a PNG image with styling.
+   * Downloads the generated QR code as a PNG image.
    */
   const downloadQRCode = () => {
-    const qrCanvas = qrRef.current?.querySelector('canvas');
-    if (qrCanvas) {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const scale = 2; // Scale for higher resolution
-      const qrSize = 200 * scale;
-      const padding = 20 * scale;
-      const headerHeight = 50 * scale;
-      const footerHeight = 40 * scale;
-      
-      canvas.width = qrSize + (padding * 2);
-      canvas.height = qrSize + (padding * 2) + headerHeight + footerHeight;
-
-      // Background
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Header
-      ctx.fillStyle = '#1e293b';
-      ctx.font = `bold ${24 * scale}px sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText('Launch That Linkpage', canvas.width / 2, padding + (headerHeight / 2));
-
-      // QR Code
-      ctx.drawImage(qrCanvas, padding, padding + headerHeight, qrSize, qrSize);
-      
-      // Footer
-      ctx.fillStyle = '#4f46e5';
-      ctx.font = ` ${14 * scale}px sans-serif`;
-      ctx.fillText(url, canvas.width / 2, canvas.height - padding - (footerHeight / 2) + 10);
-
-
+    const canvas = qrRef.current?.querySelector('canvas');
+    if (canvas) {
       const pngUrl = canvas
         .toDataURL('image/png')
         .replace('image/png', 'image/octet-stream');
@@ -76,13 +44,13 @@ const QRCodeModal = ({ isOpen, onClose, url, username }: QRCodeModalProps) => {
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Share Your Page</h2>
         <p className="text-slate-500 mb-6">Scan this QR code to open your linkpage.</p>
         <div ref={qrRef} className="p-4 border-4 border-slate-100 rounded-lg inline-block">
-          <QRCodeCanvas 
-            value={url} 
-            size={200} 
-            bgColor={"#ffffff"} 
-            fgColor={"#000000"} 
-            level={"L"} 
-            includeMargin={false} 
+          <QRCodeCanvas
+            value={url}
+            size={200}
+            bgColor={"#ffffff"}
+            fgColor={"#000000"}
+            level={"L"}
+            includeMargin={false}
           />
         </div>
         <p className="text-sm text-indigo-600 font-semibold mt-4 break-all">{url}</p>
